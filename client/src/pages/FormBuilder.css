@@ -1,0 +1,136 @@
+.fb-shell {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 20px 64px;
+}
+
+.fb-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+.fai-logo-tile {
+  position: relative;
+  border-radius: 11px;
+  background: var(--accent-soft);
+  border: 1px solid #ddd6fe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.fai-logo-tile__spark {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  font-size: 12px;
+  color: var(--accent-pink);
+}
+
+.fb-brand {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  background: linear-gradient(120deg, #6d5bf5, #ec4899);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.fb-card {
+  width: 100%;
+  max-width: 560px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 36px 40px;
+  animation: fade-in var(--duration-med) var(--ease);
+}
+
+.fb-eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  margin-bottom: 14px;
+}
+
+.fb-title {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+
+.fb-subtitle {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  margin: 0 0 28px;
+}
+
+/* ---- loading skeleton ---- */
+.fb-skeleton { display: flex; flex-direction: column; gap: 18px; }
+.fb-skeleton__line {
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, #f0f1f6 25%, #e6e8f0 50%, #f0f1f6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.3s ease-in-out infinite;
+}
+.fb-skeleton__line--label {
+  height: 12px;
+  width: 40%;
+  margin-bottom: -8px;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ---- error state ---- */
+.fb-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--danger-soft);
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+/* ---- success state ---- */
+.fb-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 12px 0 4px;
+  animation: fade-in var(--duration-med) var(--ease);
+}
+.fb-success__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--success-soft);
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.fb-success__title { font-size: 17px; font-weight: 700; margin: 0; }
+.fb-success__sub { font-size: 13.5px; color: var(--text-muted); margin: 0; }

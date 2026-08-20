@@ -1,0 +1,40 @@
+const mongoose = require("mongoose");
+
+const optionSchema = new mongoose.Schema(
+  { value: { type: String, required: true }, label: { type: String, required: true } },
+  { _id: false }
+);
+
+const fieldSchema = new mongoose.Schema(
+  {
+    id: { type: String, required: true },
+    label: { type: String, required: true },
+    type: {
+      type: String,
+      required: true,
+      enum: ["text", "textarea", "select", "checkbox", "date", "number"],
+    },
+    required: { type: Boolean, default: false },
+    placeholder: String,
+    pattern: String,
+    patternMessage: String,
+    options: [optionSchema], // only used when type === "select"
+    showIf: {
+      // Mid-Project Review's conditional-field logic: { field: "incidentType", equals: "weather" }
+      field: String,
+      equals: mongoose.Schema.Types.Mixed,
+    },
+  },
+  { _id: false }
+);
+
+const formSchemaSchema = new mongoose.Schema(
+  {
+    formId: { type: String, required: true, unique: true, index: true },
+    title: { type: String, required: true },
+    fields: { type: [fieldSchema], default: [] },
+  },
+  { timestamps: true }
+);
+
+module.exports = mongoose.model("FormSchema", formSchemaSchema);

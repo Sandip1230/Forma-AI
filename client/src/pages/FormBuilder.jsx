@@ -11,15 +11,16 @@ function FormBuilder() {
   const { schema, loading, error } = useFormSchema(formId);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const handleSubmit = async (values) => {
     setSubmitting(true);
+    setSubmitError("");
     try {
       await submitFormResponse(formId, values);
       setSubmitted(true);
     } catch (err) {
-      console.warn("Submit failed (expected until the backend exists):", err.message);
-      setSubmitted(true);
+      setSubmitError(err.message || "Could not submit the form. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -58,6 +59,16 @@ function FormBuilder() {
             <span className="fb-eyebrow">Form ID · {schema.formId}</span>
             <h1 className="fb-title">{schema.title}</h1>
             <p className="fb-subtitle">All fields marked * are required.</p>
+
+            {submitError && (
+              <div className="fb-error" style={{ marginBottom: 18 }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+                  <path stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" d="M12 9v4m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 18c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <span>{submitError}</span>
+              </div>
+            )}
+
             <DynamicForm schema={schema} onSubmit={handleSubmit} submitting={submitting} />
           </>
         )}

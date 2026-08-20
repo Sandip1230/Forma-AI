@@ -1,16 +1,11 @@
 const express = require("express");
-const {
-  listFormSchemas,
-  getFormSchema,
-  createFormSchema,
-  submitFormResponse,
-} = require("../controllers/formSchemaController");
+const { getSchema, listSchemas, createSchema, submitResponse } = require("../controllers/formSchemaController");
 
 const router = express.Router();
 
-router.get("/", listFormSchemas);
-router.post("/", createFormSchema);
-router.get("/:formId", getFormSchema);
-router.post("/:formId/responses", submitFormResponse);
+router.get("/", listSchemas);
+router.post("/", createSchema);
+router.get("/:formId", getSchema);
+router.post("/:formId/responses", submitResponse);
 
 module.exports = router;

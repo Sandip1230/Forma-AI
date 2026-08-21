@@ -7,7 +7,7 @@
 .df-field {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 8px;
 }
 
 .df-field label {

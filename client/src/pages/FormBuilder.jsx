@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useFormSchema } from "../hooks/useFormSchema";
 import { submitFormResponse } from "../services/api";
 import DynamicForm from "../components/DynamicForm/DynamicForm";
@@ -29,8 +29,10 @@ function FormBuilder() {
   return (
     <div className="fb-shell">
       <div className="fb-header">
-        <Logo size={36} />
-        <span className="fb-brand">Forma AI</span>
+        <Link to="/" className="fb-header__brand-link">
+          <Logo size={36} />
+          <span className="fb-brand">Forma AI</span>
+        </Link>
       </div>
 
       <div className="fb-card">

@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useFormSchema } from "../hooks/useFormSchema";
 import { submitFormResponse } from "../services/api";
 import DynamicForm from "../components/DynamicForm/DynamicForm";
+import MagicInput from "../components/MagicInput/MagicInput";
 import Logo from "../components/Logo";
 import "./FormBuilder.css";
 
@@ -12,6 +13,8 @@ function FormBuilder() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [prefillValues, setPrefillValues] = useState(null);
+  const [aiFilledIds, setAiFilledIds] = useState([]);
 
   const handleSubmit = async (values) => {
     setSubmitting(true);
@@ -24,6 +27,11 @@ function FormBuilder() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleExtracted = (result) => {
+    setPrefillValues(result.values);
+    setAiFilledIds(result.filledFieldIds);
   };
 
   return (
@@ -71,7 +79,15 @@ function FormBuilder() {
               </div>
             )}
 
-            <DynamicForm schema={schema} onSubmit={handleSubmit} submitting={submitting} />
+            <MagicInput formId={formId} onExtracted={handleExtracted} />
+
+            <DynamicForm
+              schema={schema}
+              onSubmit={handleSubmit}
+              submitting={submitting}
+              prefillValues={prefillValues}
+              aiFilledIds={aiFilledIds}
+            />
           </>
         )}
 

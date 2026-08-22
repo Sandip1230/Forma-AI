@@ -34,3 +34,12 @@ export function submitFormResponse(formId, values) {
     body: JSON.stringify(values),
   });
 }
+
+export async function extractFormValues(formId, text) {
+  const res = await fetch(`${API_BASE_URL}/forms/${formId}/extract`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  });
+  return handle(res);
+}

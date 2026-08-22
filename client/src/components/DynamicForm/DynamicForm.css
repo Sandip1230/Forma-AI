@@ -124,3 +124,15 @@
 }
 .df-submit:active:not(:disabled) { transform: translateY(0); }
 .df-submit:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+.df-ai-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--accent-pink);
+  background: var(--accent-soft);
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  vertical-align: middle;
+}

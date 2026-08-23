@@ -24,15 +24,45 @@ async function createSchema(req, res) {
   res.status(201).json(schema);
 }
 
+// Mirrors the frontend's visibility logic — a field hidden by a showIf
+// condition (or whose ancestor is hidden) can't be "missing" if it was
+// never meant to be shown.
+function resolveVisibility(fields, values) {
+  const byId = Object.fromEntries(fields.map((f) => [f.id, f]));
+  const cache = new Map();
+
+  function isVisible(field, seen = new Set()) {
+    if (cache.has(field.id)) return cache.get(field.id);
+    if (!field.showIf) {
+      cache.set(field.id, true);
+      return true;
+    }
+    if (seen.has(field.id)) return false; // guard against circular showIf chains
+
+    const parent = byId[field.showIf.field];
+    if (!parent) {
+      cache.set(field.id, true);
+      return true;
+    }
+    const parentVisible = isVisible(parent, new Set(seen).add(field.id));
+    const result = parentVisible && values[field.showIf.field] === field.showIf.equals;
+    cache.set(field.id, result);
+    return result;
+  }
+
+  return Object.fromEntries(fields.map((f) => [f.id, isVisible(f)]));
+}
+
 async function submitResponse(req, res) {
   const { formId } = req.params;
   const schema = await FormSchema.findOne({ formId }).lean();
   if (!schema) return res.status(404).json({ error: "Form not found" });
 
-  // Minimal server-side required-field check — the frontend already
-  // validates via react-hook-form, but a client can bypass that, so the
-  // backend shouldn't blindly trust req.body.
-  const missing = schema.fields.filter((f) => f.required && !req.body[f.id]).map((f) => f.label);
+  const visibility = resolveVisibility(schema.fields, req.body);
+  const missing = schema.fields
+    .filter((f) => f.required && visibility[f.id] && !req.body[f.id])
+    .map((f) => f.label);
+
   if (missing.length > 0) {
     return res.status(400).json({ error: `Missing required field(s): ${missing.join(", ")}` });
   }

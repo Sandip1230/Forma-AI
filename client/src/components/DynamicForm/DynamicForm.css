@@ -11,7 +11,7 @@
 }
 
 .df-field label {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--text-primary);
 }
@@ -135,4 +135,8 @@
   padding: 2px 7px;
   border-radius: var(--radius-pill);
   vertical-align: middle;
+}
+
+.df-field-wrap {
+  animation-duration: 0.25s;
 }

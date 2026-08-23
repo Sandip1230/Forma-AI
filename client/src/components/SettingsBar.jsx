@@ -1,13 +1,6 @@
 import { useState } from "react";
-
-const ACTIONS = [
-  { id: "seed", label: "Seed Demo Form", icon: "seed" },
-  { id: "list", label: "View All Forms", icon: "list" },
-  { id: "export", label: "Export Responses", icon: "export" },
-  { id: "health", label: "API Health Check", icon: "health" },
-  { id: "reset", label: "Reset Demo Data", icon: "reset", danger: true },
-  { id: "docs", label: "Documentation", icon: "docs" },
-];
+import { seedDemoForm, resetDemoData, checkHealth, exportResponsesCsv } from "../services/api";
+import DocsModal from "./DocsModal";
 
 function Icon({ name }) {
   const p = { width: 16, height: 16, viewBox: "0 0 24 24", fill: "none" };
@@ -22,30 +15,63 @@ function Icon({ name }) {
   }
 }
 
-function SettingsBar() {
-  const [toast, setToast] = useState("");
+function SettingsBar({ onDataChanged }) {
+  const [toast, setToast] = useState(null); // { text, tone }
+  const [busy, setBusy] = useState(null);
+  const [docsOpen, setDocsOpen] = useState(false);
 
-  const handleClick = (action) => {
-    // Phase 1 is UI-only by design — every action surfaces an honest
-    // "not wired yet" message instead of silently doing nothing or
-    // pretending to succeed. Phase 2 replaces each of these with a real
-    // handler (API call, CSV export, etc).
-    setToast(`"${action.label}" will be wired up in Phase 2.`);
-    setTimeout(() => setToast(""), 2200);
+  const showToast = (text, tone = "info") => {
+    setToast({ text, tone });
+    setTimeout(() => setToast(null), 2800);
   };
+
+  const run = async (id, fn, successMsg) => {
+    setBusy(id);
+    try {
+      const result = await fn();
+      showToast(successMsg ? successMsg(result) : "Done.", "success");
+      onDataChanged?.();
+    } catch (err) {
+      showToast(err.message || "Something went wrong.", "error");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const handleSeed = () => run("seed", seedDemoForm, (r) => r.message);
+  const handleExport = () => run("export", exportResponsesCsv, () => "Download started.");
+  const handleHealth = () => run("health", checkHealth, (r) => `API healthy — ${r.latencyMs}ms`);
+  const handleReset = () => {
+    if (!window.confirm("Delete all claim-demo submissions? This can't be undone.")) return;
+    run("reset", resetDemoData, (r) => r.message);
+  };
+  const handleViewForms = () => document.getElementById("dash-forms-section")?.scrollIntoView({ behavior: "smooth" });
 
   return (
     <div className="settings-bar">
       <span className="settings-bar__label">Quick Actions</span>
       <div className="settings-bar__grid">
-        {ACTIONS.map((a) => (
-          <button key={a.id} className={`settings-btn ${a.danger ? "settings-btn--danger" : ""}`} onClick={() => handleClick(a)}>
-            <Icon name={a.icon} />
-            {a.label}
-          </button>
-        ))}
+        <button className="settings-btn" onClick={handleSeed} disabled={busy === "seed"}>
+          <Icon name="seed" /> {busy === "seed" ? "Seeding…" : "Seed Demo Form"}
+        </button>
+        <button className="settings-btn" onClick={handleViewForms}>
+          <Icon name="list" /> View All Forms
+        </button>
+        <button className="settings-btn" onClick={handleExport} disabled={busy === "export"}>
+          <Icon name="export" /> {busy === "export" ? "Exporting…" : "Export Responses"}
+        </button>
+        <button className="settings-btn" onClick={handleHealth} disabled={busy === "health"}>
+          <Icon name="health" /> {busy === "health" ? "Checking…" : "API Health Check"}
+        </button>
+        <button className="settings-btn settings-btn--danger" onClick={handleReset} disabled={busy === "reset"}>
+          <Icon name="reset" /> {busy === "reset" ? "Resetting…" : "Reset Demo Data"}
+        </button>
+        <button className="settings-btn" onClick={() => setDocsOpen(true)}>
+          <Icon name="docs" /> Documentation
+        </button>
       </div>
-      {toast && <div className="settings-toast fade-in">{toast}</div>}
+      {toast && <div className={`settings-toast settings-toast--${toast.tone} fade-in`}>{toast.text}</div>}
+      {docsOpen && <DocsModal onClose={() => setDocsOpen(false)} />}
     </div>
   );
 }

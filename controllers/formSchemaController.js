@@ -71,4 +71,72 @@ async function submitResponse(req, res) {
   res.status(201).json({ id: response._id, submittedAt: response.createdAt });
 }
 
-module.exports = { getSchema, listSchemas, createSchema, submitResponse };
+const exampleFormSchema = require("../lib/exampleFormSchema");
+
+async function listSchemas(req, res) {
+  const schemas = await FormSchema.find().select("formId title fields createdAt").lean();
+  const counts = await FormResponse.aggregate([{ $group: { _id: "$formId", count: { $sum: 1 } } }]);
+  const countByFormId = Object.fromEntries(counts.map((c) => [c._id, c.count]));
+
+  const withStats = schemas.map((s) => ({
+    formId: s.formId,
+    title: s.title,
+    fieldCount: s.fields.length,
+    submissionCount: countByFormId[s.formId] || 0,
+    createdAt: s.createdAt,
+  }));
+  res.json(withStats);
+}
+
+async function getStats(req, res) {
+  const totalForms = await FormSchema.countDocuments();
+  const totalSubmissions = await FormResponse.countDocuments();
+
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+  const submissionsToday = await FormResponse.countDocuments({ createdAt: { $gte: startOfDay } });
+
+  res.json({ totalForms, totalSubmissions, submissionsToday });
+}
+
+function toCsvValue(val) {
+  if (val === null || val === undefined) return "";
+  const str = String(val);
+  return /[",\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+}
+
+async function exportResponses(req, res) {
+  const responses = await FormResponse.find().sort({ createdAt: -1 }).lean();
+  if (responses.length === 0) {
+    return res.status(404).json({ error: "No submissions to export yet" });
+  }
+
+  const valueKeys = [...new Set(responses.flatMap((r) => Object.keys(r.values || {})))];
+  const headers = ["formId", "submittedAt", ...valueKeys];
+  const rows = responses.map((r) => [
+    r.formId,
+    r.createdAt.toISOString(),
+    ...valueKeys.map((k) => toCsvValue(r.values?.[k])),
+  ]);
+
+  const csv = [headers.join(","), ...rows.map((row) => row.map(toCsvValue).join(","))].join("\n");
+  res.setHeader("Content-Type", "text/csv");
+  res.setHeader("Content-Disposition", "attachment; filename=forma-ai-responses.csv");
+  res.send(csv);
+}
+
+async function seedDemo(req, res) {
+  const schema = await FormSchema.findOneAndUpdate(
+    { formId: exampleFormSchema.formId },
+    exampleFormSchema,
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
+  res.json({ message: `Seeded "${schema.formId}"`, formId: schema.formId });
+}
+
+async function resetDemoData(req, res) {
+  const result = await FormResponse.deleteMany({ formId: exampleFormSchema.formId });
+  res.json({ message: `Deleted ${result.deletedCount} response(s) for "${exampleFormSchema.formId}"` });
+}
+
+module.exports = { getSchema, listSchemas, createSchema, submitResponse, getStats, exportResponses, seedDemo, resetDemoData };

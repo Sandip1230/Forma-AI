@@ -29,7 +29,7 @@ function resolveVisibility(fields, values) {
   return Object.fromEntries(fields.map((f) => [f.id, isVisible(f)]));
 }
 
-function DynamicForm({ schema, onSubmit, submitting, prefillValues, aiFilledIds = [] }) {
+function DynamicForm({ schema, onSubmit, submitting, prefillValues, aiFilledIds = [], aiWasUsed = false }) {
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
 
   useEffect(() => {
@@ -40,14 +40,36 @@ function DynamicForm({ schema, onSubmit, submitting, prefillValues, aiFilledIds 
   const liveValues = watch();
   const visibility = useMemo(() => resolveVisibility(schema.fields, liveValues), [schema.fields, liveValues]);
 
+  // Fields the AI was expected to have a shot at but left empty — only
+  // meaningful once extraction has actually run, and only for fields
+  // currently visible (a hidden branch shouldn't nag the user).
+  const needsReview = useMemo(() => {
+    if (!aiWasUsed) return [];
+    return schema.fields
+      .filter((f) => f.required && visibility[f.id] && !aiFilledIds.includes(f.id) && !liveValues[f.id])
+      .map((f) => f.id);
+  }, [aiWasUsed, aiFilledIds, schema.fields, visibility, liveValues]);
+
   return (
     <form className="df" onSubmit={handleSubmit(onSubmit)} noValidate>
+      {aiWasUsed && needsReview.length > 0 && (
+        <div className="df-review-banner">
+          <span className="df-review-banner__icon">⚠</span>
+          The AI couldn't confidently fill {needsReview.length} required field{needsReview.length > 1 ? "s" : ""} below — please complete {needsReview.length > 1 ? "them" : "it"} manually.
+        </div>
+      )}
+
       {schema.fields.map((field) => {
-        const visible = visibility[field.id];
-        if (!visible) return null;
+        if (!visibility[field.id]) return null;
         return (
           <div key={field.id} className="df-field-wrap fade-in">
-            <FieldRenderer field={field} register={register} error={errors[field.id]} aiFilled={aiFilledIds.includes(field.id)} />
+            <FieldRenderer
+              field={field}
+              register={register}
+              error={errors[field.id]}
+              aiFilled={aiFilledIds.includes(field.id)}
+              needsReview={needsReview.includes(field.id)}
+            />
           </div>
         );
       })}

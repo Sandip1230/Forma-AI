@@ -15,6 +15,7 @@ function FormBuilder() {
   const [submitError, setSubmitError] = useState("");
   const [prefillValues, setPrefillValues] = useState(null);
   const [aiFilledIds, setAiFilledIds] = useState([]);
+  const [aiWasUsed, setAiWasUsed] = useState(false);
 
   const handleSubmit = async (values) => {
     setSubmitting(true);
@@ -30,9 +31,10 @@ function FormBuilder() {
   };
 
   const handleExtracted = (result) => {
-    setPrefillValues(result.values);
-    setAiFilledIds(result.filledFieldIds);
-  };
+  setPrefillValues(result.values);
+  setAiFilledIds(result.filledFieldIds);
+  setAiWasUsed(true);
+};
 
   return (
     <div className="fb-shell">
@@ -87,6 +89,7 @@ function FormBuilder() {
               submitting={submitting}
               prefillValues={prefillValues}
               aiFilledIds={aiFilledIds}
+              aiWasUsed={aiWasUsed}
             />
           </>
         )}

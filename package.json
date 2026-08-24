@@ -9,12 +9,12 @@
     "seed:demo": "node scripts/seedExampleForm.js"
   },
   "dependencies": {
+    "@langchain/core": "^0.3.20",
+    "@langchain/google-genai": "^0.2.18",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "mongoose": "^8.8.3",
-    "@langchain/core": "^0.3.20",
-    "@langchain/openai": "^0.3.14",
     "zod": "^3.23.8"
   },
   "devDependencies": {

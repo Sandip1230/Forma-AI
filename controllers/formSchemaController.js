@@ -7,11 +7,6 @@ async function getSchema(req, res) {
   res.json(schema);
 }
 
-async function listSchemas(req, res) {
-  const schemas = await FormSchema.find().select("formId title createdAt").lean();
-  res.json(schemas);
-}
-
 async function createSchema(req, res) {
   const { formId, title, fields } = req.body;
   if (!formId || !title) {

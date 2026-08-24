@@ -196,3 +196,101 @@
   .forms-table__row { grid-template-columns: 1fr; gap: 4px; }
   .forms-table__row--head { display: none; }
 }
+
+/* ---- cyber-tech background layer ---- */
+.dash {
+  position: relative;
+  overflow: hidden;
+}
+
+.dash-header, .dash-main { position: relative; z-index: 1; }
+
+.dash-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.dash-bg__grid {
+  position: absolute;
+  inset: -2px;
+  background-image:
+    linear-gradient(rgba(109, 91, 245, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(109, 91, 245, 0.06) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+}
+[data-theme="dark"] .dash-bg__grid {
+  background-image:
+    linear-gradient(rgba(139, 124, 247, 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 124, 247, 0.14) 1px, transparent 1px);
+}
+
+.dash-bg__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+}
+.dash-bg__orb--a {
+  width: 420px; height: 420px;
+  top: -120px; left: -100px;
+  background: radial-gradient(circle, rgba(109, 91, 245, 0.28), transparent 70%);
+  animation: dash-orb-drift-a 16s ease-in-out infinite;
+}
+.dash-bg__orb--b {
+  width: 480px; height: 480px;
+  top: 200px; right: -160px;
+  background: radial-gradient(circle, rgba(236, 72, 153, 0.2), transparent 70%);
+  animation: dash-orb-drift-b 19s ease-in-out infinite;
+}
+[data-theme="dark"] .dash-bg__orb--a { background: radial-gradient(circle, rgba(139, 124, 247, 0.4), transparent 70%); }
+[data-theme="dark"] .dash-bg__orb--b { background: radial-gradient(circle, rgba(244, 114, 182, 0.32), transparent 70%); }
+
+@keyframes dash-orb-drift-a {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(40px, 30px); }
+}
+@keyframes dash-orb-drift-b {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-35px, -25px); }
+}
+
+.dash-bg__scanline {
+  position: absolute;
+  left: 0; right: 0;
+  height: 140px;
+  background: linear-gradient(180deg, transparent, rgba(139, 124, 247, 0.05), transparent);
+  animation: dash-scan 9s linear infinite;
+  opacity: 0;
+}
+[data-theme="dark"] .dash-bg__scanline { opacity: 1; }
+@keyframes dash-scan {
+  0% { top: -140px; }
+  100% { top: 100%; }
+}
+
+/* ---- glass/premium treatment on existing surfaces ---- */
+.dash-header {
+  background: color-mix(in srgb, var(--bg-card) 82%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom-color: color-mix(in srgb, var(--accent) 22%, var(--border-subtle));
+}
+
+.stat-card, .settings-bar, .forms-table {
+  background: color-mix(in srgb, var(--bg-card) 90%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-color: color-mix(in srgb, var(--accent) 14%, var(--border-subtle));
+  transition: border-color var(--duration-fast) var(--ease), box-shadow var(--duration-fast) var(--ease);
+}
+.stat-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border-subtle));
+  box-shadow: var(--shadow-card), 0 0 0 1px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+.dash-eyebrow {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent);
+}

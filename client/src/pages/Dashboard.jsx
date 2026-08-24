@@ -36,6 +36,13 @@ function Dashboard() {
 
   return (
     <div className="dash">
+      <div className="dash-bg" aria-hidden="true">
+        <div className="dash-bg__grid" />
+        <div className="dash-bg__orb dash-bg__orb--a" />
+        <div className="dash-bg__orb dash-bg__orb--b" />
+        <div className="dash-bg__scanline" />
+      </div>
+
       <header className="dash-header">
         <div className="dash-header__brand">
           <Logo size={34} />

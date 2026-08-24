@@ -38,6 +38,9 @@ function FormBuilder() {
 
   return (
     <div className="fb-shell">
+      <div className="fb-bg" aria-hidden="true">
+        <div className="fb-bg__wave" />
+      </div>
       <div className="fb-header">
         <Link to="/" className="fb-header__brand-link">
           <Logo size={36} />

@@ -16,6 +16,7 @@ function FormBuilder() {
   const [submitError, setSubmitError] = useState("");
   const [prefillValues, setPrefillValues] = useState(null);
   const [aiFilledIds, setAiFilledIds] = useState([]);
+  const [lowConfidenceIds, setLowConfidenceIds] = useState([]);
   const [aiWasUsed, setAiWasUsed] = useState(false);
 
   const draftId = getDraftId(formId);
@@ -66,6 +67,7 @@ function FormBuilder() {
   const handleExtracted = (result) => {
     setPrefillValues(result.values);
     setAiFilledIds(result.filledFieldIds);
+    setLowConfidenceIds(result.lowConfidenceFieldIds || []);
     setAiWasUsed(true);
   };
 
@@ -133,6 +135,7 @@ function FormBuilder() {
               submitting={submitting}
               prefillValues={prefillValues || draftValues}
               aiFilledIds={aiFilledIds}
+              lowConfidenceIds={lowConfidenceIds}
               aiWasUsed={aiWasUsed}
               onValuesChange={handleValuesChange}
             />

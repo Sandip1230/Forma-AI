@@ -29,7 +29,7 @@ function resolveVisibility(fields, values) {
   return Object.fromEntries(fields.map((f) => [f.id, isVisible(f)]));
 }
 
-function DynamicForm({ schema, onSubmit, submitting, prefillValues, aiFilledIds = [], aiWasUsed = false, onValuesChange }) {
+function DynamicForm({ schema, onSubmit, submitting, prefillValues, aiFilledIds = [], lowConfidenceIds = [], aiWasUsed = false, onValuesChange }) {
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
 
   useEffect(() => {
@@ -73,6 +73,7 @@ function DynamicForm({ schema, onSubmit, submitting, prefillValues, aiFilledIds 
               error={errors[field.id]}
               aiFilled={aiFilledIds.includes(field.id)}
               needsReview={needsReview.includes(field.id)}
+              lowConfidence={lowConfidenceIds.includes(field.id)}
             />
           </div>
         );

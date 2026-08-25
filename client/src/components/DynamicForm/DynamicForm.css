@@ -143,6 +143,11 @@
   color: var(--accent-pink);
   background: var(--accent-soft);
 }
+.df-badge--ai-low {
+  color: var(--accent-pink);
+  background: transparent;
+  border: 1.3px solid var(--accent-pink);
+}
 .df-badge--review {
   color: #b45309;
   background: #fef3c7;

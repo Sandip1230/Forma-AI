@@ -5,31 +5,40 @@ const { ChatGoogleGenerativeAI } = require("@langchain/google-genai");
 // validated against the exact shape the form actually needs — not just
 // "return some JSON" and hoping it matches.
 function zodForField(field) {
-  let schema;
+  let valueSchema;
   switch (field.type) {
     case "number":
-      schema = z.number();
+      valueSchema = z.number();
       break;
     case "checkbox":
-      schema = z.boolean();
+      valueSchema = z.boolean();
       break;
     case "select":
-      schema = z.enum(field.options.map((o) => o.value));
+      valueSchema = z.enum(field.options.map((o) => o.value));
       break;
     default: // text, textarea, date
-      schema = z.string();
+      valueSchema = z.string();
   }
-  // .optional(), not .nullable(): Gemini's function-calling schema requires
-  // `type` to be a single scalar (e.g. "string"), but zod's JSON Schema
-  // conversion represents `.nullable()` as `type: ["string", "null"]` — an
-  // array — which Gemini rejects outright ("Proto field is not repeating,
-  // cannot start list"). .optional() gets the same "field may be absent"
-  // behavior via the JSON Schema `required` array instead, which Gemini
-  // supports fine, and filledFieldIds already treats a missing key the same
-  // as an explicit null.
-  return schema
-    .optional()
-    .describe(field.label + (field.placeholder ? ` (e.g. ${field.placeholder})` : ""));
+  // The whole {value, confidence} object is .optional(), not .nullable():
+  // Gemini's function-calling schema requires `type` to be a single scalar
+  // (e.g. "string"), but zod's JSON Schema conversion represents `.nullable()`
+  // as `type: ["string", "null"]` — an array — which Gemini rejects outright
+  // ("Proto field is not repeating, cannot start list"). .optional() gets the
+  // same "field may be absent" behavior via the JSON Schema `required` array
+  // instead, which Gemini supports fine, and filledFieldIds already treats a
+  // missing key the same as an explicit null. value/confidence stay required
+  // *within* the object so a field is never filled without a confidence
+  // rating attached.
+  return z
+    .object({
+      value: valueSchema.describe(field.label + (field.placeholder ? ` (e.g. ${field.placeholder})` : "")),
+      confidence: z
+        .enum(["high", "low"])
+        .describe(
+          "\"high\" if the text states or very directly implies this value; \"low\" if you had to infer it, chose between plausible options, or the text only loosely suggests it."
+        ),
+    })
+    .optional();
 }
 
 function buildExtractionSchema(fields) {
@@ -119,8 +128,9 @@ async function extractFromText(formSchema, userText) {
 
   const systemPrompt = [
     `You extract structured data from a user's free-text description to fill out a form titled "${formSchema.title}".`,
-    "Only fill a field if the text clearly supports it. If a field isn't mentioned or is ambiguous, omit it entirely — never guess.",
+    "Only fill a field if the text clearly supports it or very directly implies it. If a field isn't mentioned or is ambiguous, omit it entirely — never guess.",
     "Do not invent information that isn't stated or clearly implied in the text.",
+    "For every field you do fill in, also rate your own confidence: \"high\" if the text states or very directly implies it, \"low\" if you had to infer it, pick between multiple plausible options, or the text only loosely suggests it.",
   ].join(" ");
 
   let result;
@@ -133,13 +143,23 @@ async function extractFromText(formSchema, userText) {
     throw mapExtractionError(err);
   }
 
-  // Only report back fields the model actually populated (non-null), so
-  // the frontend can distinguish "AI filled this" from "AI left this blank".
-  const filledFieldIds = Object.entries(result)
-    .filter(([, v]) => v !== null && v !== undefined && v !== "")
-    .map(([k]) => k);
+  // `result` is { fieldId: { value, confidence } | undefined, ... }. Flatten
+  // to a plain fieldId -> value map (the shape the form/prefill code already
+  // expects) plus filledFieldIds (unchanged contract) and the new
+  // lowConfidenceFieldIds, so existing consumers of values/filledFieldIds
+  // don't need to change to keep working.
+  const values = {};
+  const filledFieldIds = [];
+  const lowConfidenceFieldIds = [];
 
-  return { values: result, filledFieldIds };
+  for (const [fieldId, entry] of Object.entries(result)) {
+    if (!entry || entry.value === null || entry.value === undefined || entry.value === "") continue;
+    values[fieldId] = entry.value;
+    filledFieldIds.push(fieldId);
+    if (entry.confidence === "low") lowConfidenceFieldIds.push(fieldId);
+  }
+
+  return { values, filledFieldIds, lowConfidenceFieldIds };
 }
 
 module.exports = { extractFromText };

@@ -89,3 +89,22 @@ export async function exportResponsesCsv() {
   a.remove();
   URL.revokeObjectURL(url);
 }
+
+export async function fetchDraft(formId, draftId) {
+  const res = await fetch(`${API_BASE_URL}/forms/${formId}/draft/${draftId}`);
+  if (res.status === 404) return null;
+  return handle(res);
+}
+
+export async function saveDraft(formId, draftId, values) {
+  const res = await fetch(`${API_BASE_URL}/forms/${formId}/draft/${draftId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ values }),
+  });
+  return handle(res);
+}
+
+export async function deleteDraft(formId, draftId) {
+  await fetch(`${API_BASE_URL}/forms/${formId}/draft/${draftId}`, { method: "DELETE" });
+}

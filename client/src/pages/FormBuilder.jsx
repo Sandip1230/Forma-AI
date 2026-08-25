@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useFormSchema } from "../hooks/useFormSchema";
-import { submitFormResponse } from "../services/api";
+import { submitFormResponse, fetchDraft, saveDraft, deleteDraft } from "../services/api";
+import { getDraftId } from "../utils/draftId";
 import DynamicForm from "../components/DynamicForm/DynamicForm";
 import MagicInput from "../components/MagicInput/MagicInput";
 import Logo from "../components/Logo";
@@ -17,11 +18,43 @@ function FormBuilder() {
   const [aiFilledIds, setAiFilledIds] = useState([]);
   const [aiWasUsed, setAiWasUsed] = useState(false);
 
+  const draftId = getDraftId(formId);
+  const [draftLoaded, setDraftLoaded] = useState(false);
+  const [draftFound, setDraftFound] = useState(false);
+  const [draftValues, setDraftValues] = useState(null);
+  const [savingDraft, setSavingDraft] = useState(false);
+  const saveTimerRef = useRef(null);
+
+  useEffect(() => {
+    if (!schema) return;
+    fetchDraft(formId, draftId)
+      .then((data) => {
+        if (data) {
+          setDraftValues(data.values);
+          setDraftFound(true);
+        }
+      })
+      .finally(() => setDraftLoaded(true));
+  }, [schema, formId, draftId]);
+
+  const handleValuesChange = useCallback((values) => {
+    const hasAnyValue = Object.values(values).some((v) => v !== "" && v !== undefined && v !== false);
+    if (!hasAnyValue) return;
+    clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      setSavingDraft(true);
+      saveDraft(formId, draftId, values)
+        .catch(() => {}) // best-effort — a failed autosave shouldn't interrupt someone filling out the form
+        .finally(() => setSavingDraft(false));
+    }, 1200);
+  }, [formId, draftId]);
+
   const handleSubmit = async (values) => {
     setSubmitting(true);
     setSubmitError("");
     try {
-      await submitFormResponse(formId, values);
+      await submitFormResponse(formId, { ...values, __draftId: draftId });
+      deleteDraft(formId, draftId).catch(() => {});
       setSubmitted(true);
     } catch (err) {
       setSubmitError(err.message || "Could not submit the form. Please try again.");
@@ -31,10 +64,10 @@ function FormBuilder() {
   };
 
   const handleExtracted = (result) => {
-  setPrefillValues(result.values);
-  setAiFilledIds(result.filledFieldIds);
-  setAiWasUsed(true);
-};
+    setPrefillValues(result.values);
+    setAiFilledIds(result.filledFieldIds);
+    setAiWasUsed(true);
+  };
 
   return (
     <div className="fb-shell">
@@ -74,6 +107,7 @@ function FormBuilder() {
             <span className="fb-eyebrow">Form ID · {schema.formId}</span>
             <h1 className="fb-title">{schema.title}</h1>
             <p className="fb-subtitle">All fields marked * are required.</p>
+            {savingDraft && <span className="fb-draft-status">Saving draft…</span>}
 
             {submitError && (
               <div className="fb-error" style={{ marginBottom: 18 }}>
@@ -84,15 +118,23 @@ function FormBuilder() {
               </div>
             )}
 
+            {draftLoaded && draftFound && (
+              <div className="fb-draft-banner">
+                <span>✓ Picking up where you left off — a saved draft was restored.</span>
+                <button onClick={() => setDraftFound(false)}>Dismiss</button>
+              </div>
+            )}
+
             <MagicInput formId={formId} onExtracted={handleExtracted} />
 
             <DynamicForm
               schema={schema}
               onSubmit={handleSubmit}
               submitting={submitting}
-              prefillValues={prefillValues}
+              prefillValues={prefillValues || draftValues}
               aiFilledIds={aiFilledIds}
               aiWasUsed={aiWasUsed}
+              onValuesChange={handleValuesChange}
             />
           </>
         )}

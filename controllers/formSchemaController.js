@@ -1,5 +1,7 @@
 const FormSchema = require("../models/FormSchema");
 const FormResponse = require("../models/FormResponse");
+const FormDraft = require("../models/FormDraft");
+const exampleFormSchema = require("../lib/exampleFormSchema");
 const { asyncHandler } = require("../middleware/errorHandler");
 
 async function getSchema(req, res) {
@@ -64,10 +66,13 @@ async function submitResponse(req, res) {
   }
 
   const response = await FormResponse.create({ formId, values: req.body });
+
+  if (req.body.__draftId) {
+    await FormDraft.deleteOne({ formId, draftId: req.body.__draftId }).catch(() => {});
+  }
+
   res.status(201).json({ id: response._id, submittedAt: response.createdAt });
 }
-
-const exampleFormSchema = require("../lib/exampleFormSchema");
 
 async function listSchemas(req, res) {
   const schemas = await FormSchema.find().select("formId title fields createdAt").lean();

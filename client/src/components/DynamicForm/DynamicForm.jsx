@@ -29,7 +29,7 @@ function resolveVisibility(fields, values) {
   return Object.fromEntries(fields.map((f) => [f.id, isVisible(f)]));
 }
 
-function DynamicForm({ schema, onSubmit, submitting, prefillValues, aiFilledIds = [], aiWasUsed = false }) {
+function DynamicForm({ schema, onSubmit, submitting, prefillValues, aiFilledIds = [], aiWasUsed = false, onValuesChange }) {
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
 
   useEffect(() => {
@@ -39,6 +39,10 @@ function DynamicForm({ schema, onSubmit, submitting, prefillValues, aiFilledIds 
 
   const liveValues = watch();
   const visibility = useMemo(() => resolveVisibility(schema.fields, liveValues), [schema.fields, liveValues]);
+
+  useEffect(() => {
+    onValuesChange?.(liveValues);
+  }, [liveValues, onValuesChange]);
 
   // Fields the AI was expected to have a shot at but left empty — only
   // meaningful once extraction has actually run, and only for fields

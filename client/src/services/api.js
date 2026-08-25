@@ -86,3 +86,26 @@ export async function exportResponsesCsv() {
   a.remove();
   URL.revokeObjectURL(url);
 }
+
+export async function fetchDraft(formId, draftId) {
+  // A 404 here means "no saved draft yet" — expected, not an error, so it's
+  // checked before going through request()'s throw-on-!ok path.
+  const res = await fetch(`${API_BASE_URL}/forms/${formId}/draft/${draftId}`);
+  if (res.status === 404) return null;
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error || `Request failed with status ${res.status}`);
+  }
+  return res.json();
+}
+
+export function saveDraft(formId, draftId, values) {
+  return request(`/forms/${formId}/draft/${draftId}`, {
+    method: "PUT",
+    body: JSON.stringify({ values }),
+  });
+}
+
+export function deleteDraft(formId, draftId) {
+  return request(`/forms/${formId}/draft/${draftId}`, { method: "DELETE" });
+}

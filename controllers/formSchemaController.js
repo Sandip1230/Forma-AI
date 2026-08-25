@@ -1,5 +1,6 @@
 const FormSchema = require("../models/FormSchema");
 const FormResponse = require("../models/FormResponse");
+const { asyncHandler } = require("../middleware/errorHandler");
 
 async function getSchema(req, res) {
   const schema = await FormSchema.findOne({ formId: req.params.formId }).lean();
@@ -134,4 +135,13 @@ async function resetDemoData(req, res) {
   res.json({ message: `Deleted ${result.deletedCount} response(s) for "${exampleFormSchema.formId}"` });
 }
 
-module.exports = { getSchema, listSchemas, createSchema, submitResponse, getStats, exportResponses, seedDemo, resetDemoData };
+module.exports = {
+  getSchema: asyncHandler(getSchema),
+  listSchemas: asyncHandler(listSchemas),
+  createSchema: asyncHandler(createSchema),
+  submitResponse: asyncHandler(submitResponse),
+  getStats: asyncHandler(getStats),
+  exportResponses: asyncHandler(exportResponses),
+  seedDemo: asyncHandler(seedDemo),
+  resetDemoData: asyncHandler(resetDemoData),
+};

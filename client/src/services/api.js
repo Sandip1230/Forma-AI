@@ -1,10 +1,10 @@
-// Thin fetch wrapper around the (not-yet-built) Forma AI backend.
+// Thin fetch wrapper around the Forma AI backend.
 // Base URL can be overridden with VITE_API_URL; defaults to same-origin /api
 // so it works once the Express server is proxied or served together.
-const API_BASE = import.meta.env.VITE_API_URL || "/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
 async function request(path, options = {}) {
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(`${API_BASE_URL}${path}`, {
     headers: { "Content-Type": "application/json" },
     ...options,
   });
@@ -13,7 +13,10 @@ async function request(path, options = {}) {
     let message = `Request failed with status ${res.status}`;
     try {
       const body = await res.json();
-      if (body?.message) message = body.message;
+      // errorHandler.js sends { error }, not { message } — matching the
+      // actual shape so failures surface the real reason instead of falling
+      // through to the generic status-code message below.
+      if (body?.error) message = body.error;
     } catch {
       // response wasn't JSON; keep the default message
     }
@@ -35,23 +38,19 @@ export function submitFormResponse(formId, values) {
   });
 }
 
-export async function extractFormValues(formId, text) {
-  const res = await fetch(`${API_BASE_URL}/forms/${formId}/extract`, {
+export function extractFormValues(formId, text) {
+  return request(`/forms/${formId}/extract`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text }),
   });
-  return handle(res);
 }
 
-export async function fetchForms() {
-  const res = await fetch(`${API_BASE_URL}/forms`);
-  return handle(res);
+export function fetchForms() {
+  return request("/forms");
 }
 
-export async function fetchDashboardStats() {
-  const res = await fetch(`${API_BASE_URL}/forms/stats`);
-  return handle(res);
+export function fetchDashboardStats() {
+  return request("/forms/stats");
 }
 
 export async function checkHealth() {
@@ -63,14 +62,12 @@ export async function checkHealth() {
   return { ...(await res.json()), latencyMs: ms };
 }
 
-export async function seedDemoForm() {
-  const res = await fetch(`${API_BASE_URL}/forms/seed-demo`, { method: "POST" });
-  return handle(res);
+export function seedDemoForm() {
+  return request("/forms/seed-demo", { method: "POST" });
 }
 
-export async function resetDemoData() {
-  const res = await fetch(`${API_BASE_URL}/forms/demo-data`, { method: "DELETE" });
-  return handle(res);
+export function resetDemoData() {
+  return request("/forms/demo-data", { method: "DELETE" });
 }
 
 export async function exportResponsesCsv() {

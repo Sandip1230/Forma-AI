@@ -19,8 +19,16 @@ function zodForField(field) {
     default: // text, textarea, date
       schema = z.string();
   }
+  // .optional(), not .nullable(): Gemini's function-calling schema requires
+  // `type` to be a single scalar (e.g. "string"), but zod's JSON Schema
+  // conversion represents `.nullable()` as `type: ["string", "null"]` — an
+  // array — which Gemini rejects outright ("Proto field is not repeating,
+  // cannot start list"). .optional() gets the same "field may be absent"
+  // behavior via the JSON Schema `required` array instead, which Gemini
+  // supports fine, and filledFieldIds already treats a missing key the same
+  // as an explicit null.
   return schema
-    .nullable()
+    .optional()
     .describe(field.label + (field.placeholder ? ` (e.g. ${field.placeholder})` : ""));
 }
 
@@ -96,7 +104,7 @@ async function extractFromText(formSchema, userText) {
   }
 
   const extractionSchema = buildExtractionSchema(formSchema.fields);
-  const model = new ChatGoogleGenerativeAI({ model: "gemini-2.5-flash-lite", temperature: 0 });
+  const model = new ChatGoogleGenerativeAI({ model: "gemini-3.5-flash-lite", temperature: 0 });
   // method: "functionCalling" is required here — ChatGoogleGenerativeAI's
   // default structured-output path (jsonSchema mode) only relies on Gemini's
   // own schema-constrained generation and parses the result with a bare
@@ -111,7 +119,7 @@ async function extractFromText(formSchema, userText) {
 
   const systemPrompt = [
     `You extract structured data from a user's free-text description to fill out a form titled "${formSchema.title}".`,
-    "Only fill a field if the text clearly supports it. If a field isn't mentioned or is ambiguous, return null for it — never guess.",
+    "Only fill a field if the text clearly supports it. If a field isn't mentioned or is ambiguous, omit it entirely — never guess.",
     "Do not invent information that isn't stated or clearly implied in the text.",
   ].join(" ");
 

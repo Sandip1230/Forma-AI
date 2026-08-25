@@ -149,4 +149,7 @@ module.exports = {
   exportResponses: asyncHandler(exportResponses),
   seedDemo: asyncHandler(seedDemo),
   resetDemoData: asyncHandler(resetDemoData),
+  // Not a route handler — exported as-is (not asyncHandler-wrapped) so it can
+  // be exercised directly by scripts/testShowIfChain.js.
+  resolveVisibility,
 };

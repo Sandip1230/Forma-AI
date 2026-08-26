@@ -27,6 +27,34 @@ async function request(path, options = {}) {
   return res.json();
 }
 
+export function signup(email, password) {
+  return request("/auth/signup", { method: "POST", body: JSON.stringify({ email, password }) });
+}
+
+export function login(email, password) {
+  return request("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
+}
+
+export function verifyOtp(email, code) {
+  return request("/auth/verify-otp", { method: "POST", body: JSON.stringify({ email, code }) });
+}
+
+export function logout() {
+  return request("/auth/logout", { method: "POST" });
+}
+
+export function fetchMe() {
+  return request("/auth/me");
+}
+
+export function fetchMySchemas() {
+  return request("/forms/mine");
+}
+
+export function fetchFormResponses(formId) {
+  return request(`/forms/${formId}/responses`);
+}
+
 export function fetchFormSchema(formId) {
   return request(`/forms/${formId}`);
 }

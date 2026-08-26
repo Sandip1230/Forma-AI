@@ -1,0 +1,78 @@
+.yf-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.yf-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.yf-card__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  cursor: pointer;
+}
+
+.yf-card__title {
+  font-weight: 700;
+  font-size: 14.5px;
+  margin-bottom: 2px;
+}
+
+.yf-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.yf-card__chevron {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.yf-panel-loading,
+.yf-panel-empty {
+  padding: 4px 20px 18px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.yf-panel-error {
+  margin: 0 20px 18px;
+}
+
+.yf-table-wrap {
+  padding: 0 20px 18px;
+  overflow-x: auto;
+}
+
+.yf-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.yf-table th,
+.yf-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-top: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+.yf-table th {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

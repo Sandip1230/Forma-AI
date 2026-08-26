@@ -11,10 +11,13 @@
   "dependencies": {
     "@langchain/core": "^0.3.20",
     "@langchain/google-genai": "^0.2.18",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.8.3",
+    "nodemailer": "^9.0.5",
     "zod": "^3.23.8"
   },
   "devDependencies": {

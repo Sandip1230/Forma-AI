@@ -18,7 +18,7 @@ async function createSchema(req, res) {
   const existing = await FormSchema.findOne({ formId });
   if (existing) return res.status(409).json({ error: `Form "${formId}" already exists` });
 
-  const schema = await FormSchema.create({ formId, title, fields: fields || [] });
+  const schema = await FormSchema.create({ formId, title, fields: fields || [], ownerId: req.user.id });
   res.status(201).json(schema);
 }
 
@@ -53,22 +53,26 @@ function resolveVisibility(fields, values) {
 
 async function submitResponse(req, res) {
   const { formId } = req.params;
+  const { __draftId, ...values } = req.body;
   const schema = await FormSchema.findOne({ formId }).lean();
   if (!schema) return res.status(404).json({ error: "Form not found" });
 
-  const visibility = resolveVisibility(schema.fields, req.body);
+  const visibility = resolveVisibility(schema.fields, values);
   const missing = schema.fields
-    .filter((f) => f.required && visibility[f.id] && !req.body[f.id])
+    .filter((f) => f.required && visibility[f.id] && !values[f.id])
     .map((f) => f.label);
 
   if (missing.length > 0) {
     return res.status(400).json({ error: `Missing required field(s): ${missing.join(", ")}` });
   }
 
-  const response = await FormResponse.create({ formId, values: req.body });
+  // __draftId is plumbing for the draft-cleanup step below — it isn't a real
+  // form field, so it's kept out of the stored values (was previously
+  // leaking in as a stray column in every export/response record).
+  const response = await FormResponse.create({ formId, values });
 
-  if (req.body.__draftId) {
-    await FormDraft.deleteOne({ formId, draftId: req.body.__draftId }).catch(() => {});
+  if (__draftId) {
+    await FormDraft.deleteOne({ formId, draftId: __draftId }).catch(() => {});
   }
 
   res.status(201).json({ id: response._id, submittedAt: response.createdAt });
@@ -87,6 +91,42 @@ async function listSchemas(req, res) {
     createdAt: s.createdAt,
   }));
   res.json(withStats);
+}
+
+async function listMySchemas(req, res) {
+  const schemas = await FormSchema.find({ ownerId: req.user.id }).select("formId title fields createdAt").lean();
+  const formIds = schemas.map((s) => s.formId);
+  const counts = await FormResponse.aggregate([
+    { $match: { formId: { $in: formIds } } },
+    { $group: { _id: "$formId", count: { $sum: 1 } } },
+  ]);
+  const countByFormId = Object.fromEntries(counts.map((c) => [c._id, c.count]));
+
+  const withStats = schemas.map((s) => ({
+    formId: s.formId,
+    title: s.title,
+    fieldCount: s.fields.length,
+    submissionCount: countByFormId[s.formId] || 0,
+    createdAt: s.createdAt,
+  }));
+  res.json(withStats);
+}
+
+// Owner-or-admin only — the per-submission detail view "your forms" needs,
+// as opposed to exportResponses (admin-only, all forms, CSV) or the plain
+// submissionCount every forms-list endpoint already returns.
+async function getFormResponses(req, res) {
+  const { formId } = req.params;
+  const schema = await FormSchema.findOne({ formId }).lean();
+  if (!schema) return res.status(404).json({ error: "Form not found" });
+
+  const isOwner = schema.ownerId && String(schema.ownerId) === String(req.user.id);
+  if (!isOwner && req.user.role !== "admin") {
+    return res.status(403).json({ error: "You don't have access to this form's submissions" });
+  }
+
+  const responses = await FormResponse.find({ formId }).sort({ createdAt: -1 }).lean();
+  res.json(responses.map((r) => ({ id: r._id, values: r.values, submittedAt: r.createdAt })));
 }
 
 async function getStats(req, res) {
@@ -143,8 +183,10 @@ async function resetDemoData(req, res) {
 module.exports = {
   getSchema: asyncHandler(getSchema),
   listSchemas: asyncHandler(listSchemas),
+  listMySchemas: asyncHandler(listMySchemas),
   createSchema: asyncHandler(createSchema),
   submitResponse: asyncHandler(submitResponse),
+  getFormResponses: asyncHandler(getFormResponses),
   getStats: asyncHandler(getStats),
   exportResponses: asyncHandler(exportResponses),
   seedDemo: asyncHandler(seedDemo),

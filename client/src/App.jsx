@@ -3,6 +3,7 @@ import Dashboard from "./pages/Dashboard";
 import FormBuilder from "./pages/FormBuilder";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ForgotPassword from "./pages/ForgotPassword";
 import Hub from "./pages/Hub";
 import YourForms from "./pages/YourForms";
 import CreateForm from "./pages/CreateForm";
@@ -13,6 +14,7 @@ function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
 
       <Route
         path="/"
@@ -38,10 +40,12 @@ function App() {
           </RequireAuth>
         }
       />
+      {/* Open to any logged-in user, scoped to their own forms; an admin
+          viewer sees the global admin-only data instead (see Dashboard.jsx). */}
       <Route
-        path="/admin"
+        path="/dashboard"
         element={
-          <RequireAuth adminOnly>
+          <RequireAuth>
             <Dashboard />
           </RequireAuth>
         }

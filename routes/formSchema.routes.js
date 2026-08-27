@@ -1,7 +1,7 @@
 const express = require("express");
 const {
   getSchema, listSchemas, listMySchemas, createSchema, submitResponse, getFormResponses,
-  getStats, exportResponses, seedDemo, resetDemoData,
+  getStats, getMyStats, exportResponses, seedDemo, resetDemoData,
 } = require("../controllers/formSchemaController");
 const { extract } = require("../controllers/extractionController");
 const { getDraft, saveDraft, deleteDraft } = require("../controllers/draftController");
@@ -9,15 +9,18 @@ const { requireAuth, requireAdmin } = require("../middleware/auth");
 
 const router = express.Router();
 
-// Admin tier — global view across every user's forms/submissions.
-router.get("/stats", requireAdmin, getStats);
+// Admin-only: global data across every user, and the fixed demo dataset —
+// neither is part of a regular user's own-forms workflow.
 router.get("/export", requireAdmin, exportResponses);
 router.post("/seed-demo", requireAdmin, seedDemo);
 router.delete("/demo-data", requireAdmin, resetDemoData);
 router.get("/", requireAdmin, listSchemas);
+router.get("/stats", requireAdmin, getStats);
 
-// Per-user — "your forms": only what the logged-in user created.
+// Shared Dashboard — any logged-in user; scoped to their own forms. An
+// admin visiting the same page uses the admin-only routes above instead.
 router.get("/mine", requireAuth, listMySchemas);
+router.get("/mine/stats", requireAuth, getMyStats);
 router.post("/", requireAuth, createSchema);
 router.get("/:formId/responses", requireAuth, getFormResponses);
 

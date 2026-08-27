@@ -1,13 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import Logo from "../components/Logo";
 import ThemeToggle from "../components/ThemeToggle";
 import SettingsBar from "../components/SettingsBar";
 import StatCard from "../components/StatCard";
 import FormsTable from "../components/FormsTable";
-import { fetchForms, fetchDashboardStats } from "../services/api";
+import { useAuth } from "../context/AuthContext";
+import { fetchForms, fetchDashboardStats, fetchMySchemas, fetchMyStats } from "../services/api";
 import "./Dashboard.css";
+import "./Hub.css";
 
 function Dashboard() {
+  const { user, logout } = useAuth();
+  const isAdmin = user?.role === "admin";
+
   const [forms, setForms] = useState([]);
   const [stats, setStats] = useState({ totalForms: 0, totalSubmissions: 0, submissionsToday: 0 });
   const [loading, setLoading] = useState(true);
@@ -17,7 +23,9 @@ function Dashboard() {
   const load = useCallback(() => {
     setLoading(true);
     setError("");
-    Promise.all([fetchForms(), fetchDashboardStats()])
+    const loadForms = isAdmin ? fetchForms : fetchMySchemas;
+    const loadStats = isAdmin ? fetchDashboardStats : fetchMyStats;
+    Promise.all([loadForms(), loadStats()])
       .then(([formsData, statsData]) => {
         setForms(formsData);
         setStats(statsData);
@@ -28,7 +36,7 @@ function Dashboard() {
         setApiOnline(false);
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [isAdmin]);
 
   useEffect(() => {
     load();
@@ -45,23 +53,37 @@ function Dashboard() {
 
       <header className="dash-header">
         <div className="dash-header__brand">
-          <Logo size={34} />
-          <span className="dash-brand-text">Forma AI</span>
+          <Link to="/" className="fb-header__brand-link">
+            <Logo size={34} />
+            <span className="dash-brand-text">Forma AI</span>
+          </Link>
         </div>
         <nav className="dash-header__nav">
           <span className="dash-api-status">
             <span className={`dash-api-status__dot ${apiOnline ? "" : "dash-api-status__dot--off"}`} />
             {apiOnline ? "API Online" : "API Unreachable"}
           </span>
+          {!isAdmin && (
+            <Link to="/" className="hub-admin-link">
+              ← Back
+            </Link>
+          )}
+          <button className="hub-logout" onClick={logout}>
+            Log out
+          </button>
           <ThemeToggle />
         </nav>
       </header>
 
       <main className="dash-main">
         <div className="dash-intro">
-          <span className="dash-eyebrow">Project Dashboard</span>
-          <h1 className="dash-title">Forma AI Admin</h1>
-          <p className="dash-subtitle">Manage form schemas and review incoming submissions.</p>
+          <span className="dash-eyebrow">{isAdmin ? "Project Dashboard" : "Your Dashboard"}</span>
+          <h1 className="dash-title">Hello {user?.username || user?.email}</h1>
+          <p className="dash-subtitle">
+            {isAdmin
+              ? "Manage form schemas and review incoming submissions across every user."
+              : "Manage your forms and review what's been submitted to them."}
+          </p>
         </div>
 
         {error && <div className="dash-error">{error}</div>}
@@ -81,11 +103,14 @@ function Dashboard() {
           />
         </div>
 
-        <SettingsBar onDataChanged={load} />
+        <SettingsBar onDataChanged={load} isAdmin={isAdmin} />
 
         <section className="dash-section" id="dash-forms-section">
           <div className="dash-section__header">
             <h2>Forms</h2>
+            <Link to="/forms/new" className="forms-table__open">
+              + New Form
+            </Link>
           </div>
           {loading ? <div className="forms-table__empty">Loading…</div> : <FormsTable forms={forms} />}
         </section>

@@ -1,21 +1,24 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Logo from "../components/Logo";
 import "./FormBuilder.css";
 import "./Auth.css";
 
 function Signup() {
-  const { signup } = useAuth();
+  const { signup, verifySignupOtp } = useAuth();
+  const navigate = useNavigate();
 
+  const [step, setStep] = useState("details"); // "details" | "verify"
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleDetailsSubmit = async (e) => {
     e.preventDefault();
     setError("");
     if (password !== confirmPassword) {
@@ -24,10 +27,24 @@ function Signup() {
     }
     setSubmitting(true);
     try {
-      await signup(email, password);
-      setDone(true);
+      await signup(username, email, password);
+      setStep("verify");
     } catch (err) {
       setError(err.message || "Could not create your account.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleVerifySubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setError("");
+    try {
+      await verifySignupOtp(email, code);
+      navigate("/");
+    } catch (err) {
+      setError(err.message || "Could not verify that code.");
     } finally {
       setSubmitting(false);
     }
@@ -46,19 +63,7 @@ function Signup() {
       </div>
 
       <div className="fb-card auth-card">
-        {done ? (
-          <div className="fb-success">
-            <div className="fb-success__icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </div>
-            <p className="fb-success__title">Account created</p>
-            <p className="fb-success__sub">
-              <Link to="/login">Log in</Link> to continue.
-            </p>
-          </div>
-        ) : (
+        {step === "details" && (
           <>
             <span className="fb-eyebrow">Sign up</span>
             <h1 className="fb-title">Create your account</h1>
@@ -66,7 +71,11 @@ function Signup() {
 
             {error && <div className="fb-error">{error}</div>}
 
-            <form className="df" onSubmit={handleSubmit}>
+            <form className="df" onSubmit={handleDetailsSubmit}>
+              <div className="df-field">
+                <label htmlFor="username">Username</label>
+                <input id="username" type="text" required value={username} onChange={(e) => setUsername(e.target.value)} />
+              </div>
               <div className="df-field">
                 <label htmlFor="email">Email</label>
                 <input
@@ -109,6 +118,41 @@ function Signup() {
 
             <p className="auth-switch">
               Already have an account? <Link to="/login">Log in</Link>
+            </p>
+          </>
+        )}
+
+        {step === "verify" && (
+          <>
+            <span className="fb-eyebrow">Verify your email</span>
+            <h1 className="fb-title">Enter your code</h1>
+            <p className="fb-subtitle">We emailed a 6-digit code to {email}. It expires in 10 minutes.</p>
+
+            {error && <div className="fb-error">{error}</div>}
+
+            <form className="df" onSubmit={handleVerifySubmit}>
+              <div className="df-field">
+                <label htmlFor="code">Verification code</label>
+                <input
+                  id="code"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  required
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+                />
+              </div>
+              <button type="submit" className="df-submit" disabled={submitting}>
+                {submitting ? "Verifying…" : "Verify & continue"}
+              </button>
+            </form>
+
+            <p className="auth-switch">
+              <button type="button" className="auth-linklike" onClick={() => setStep("details")}>
+                ← Back
+              </button>
             </p>
           </>
         )}

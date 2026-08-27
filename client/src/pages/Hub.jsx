@@ -16,12 +16,7 @@ function Hub() {
           <span className="dash-brand-text">Forma AI</span>
         </div>
         <nav className="dash-header__nav">
-          <span className="hub-user-email">{user?.email}</span>
-          {user?.role === "admin" && (
-            <Link to="/admin" className="hub-admin-link">
-              Admin Dashboard
-            </Link>
-          )}
+          <span className="hub-user-email">{user?.username}</span>
           <button className="hub-logout" onClick={logout}>
             Log out
           </button>
@@ -32,19 +27,19 @@ function Hub() {
       <main className="dash-main">
         <div className="dash-intro">
           <span className="dash-eyebrow">Your workspace</span>
-          <h1 className="dash-title">What do you want to do?</h1>
+          <h1 className="dash-title">Hello {user?.username}</h1>
           <p className="dash-subtitle">Build a new form, or review the ones you've already created.</p>
         </div>
 
         <div className="hub-tiles">
-          <Link to="/forms/new" className="hub-tile">
+          <Link to="/dashboard" className="hub-tile">
             <div className="hub-tile__icon hub-tile__icon--accent">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                 <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </div>
             <h2>Create Form</h2>
-            <p>Design a new dynamic form from scratch.</p>
+            <p>Manage your forms and create new ones.</p>
           </Link>
 
           <Link to="/my-forms" className="hub-tile">

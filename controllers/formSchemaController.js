@@ -140,6 +140,23 @@ async function getStats(req, res) {
   res.json({ totalForms, totalSubmissions, submissionsToday });
 }
 
+// Same shape as getStats, scoped to the logged-in user's own forms — the
+// Dashboard uses this instead of getStats for a non-admin viewer.
+async function getMyStats(req, res) {
+  const myFormIds = await FormSchema.find({ ownerId: req.user.id }).distinct("formId");
+  const totalForms = myFormIds.length;
+  const totalSubmissions = await FormResponse.countDocuments({ formId: { $in: myFormIds } });
+
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+  const submissionsToday = await FormResponse.countDocuments({
+    formId: { $in: myFormIds },
+    createdAt: { $gte: startOfDay },
+  });
+
+  res.json({ totalForms, totalSubmissions, submissionsToday });
+}
+
 function toCsvValue(val) {
   if (val === null || val === undefined) return "";
   const str = String(val);
@@ -188,6 +205,7 @@ module.exports = {
   submitResponse: asyncHandler(submitResponse),
   getFormResponses: asyncHandler(getFormResponses),
   getStats: asyncHandler(getStats),
+  getMyStats: asyncHandler(getMyStats),
   exportResponses: asyncHandler(exportResponses),
   seedDemo: asyncHandler(seedDemo),
   resetDemoData: asyncHandler(resetDemoData),

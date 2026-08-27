@@ -27,16 +27,24 @@ async function request(path, options = {}) {
   return res.json();
 }
 
-export function signup(email, password) {
-  return request("/auth/signup", { method: "POST", body: JSON.stringify({ email, password }) });
+export function signup(username, email, password) {
+  return request("/auth/signup", { method: "POST", body: JSON.stringify({ username, email, password }) });
+}
+
+export function verifySignupOtp(email, code) {
+  return request("/auth/verify-signup-otp", { method: "POST", body: JSON.stringify({ email, code }) });
 }
 
 export function login(email, password) {
   return request("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
 }
 
-export function verifyOtp(email, code) {
-  return request("/auth/verify-otp", { method: "POST", body: JSON.stringify({ email, code }) });
+export function forgotPassword(email) {
+  return request("/auth/forgot-password", { method: "POST", body: JSON.stringify({ email }) });
+}
+
+export function resetPassword(email, code, newPassword) {
+  return request("/auth/reset-password", { method: "POST", body: JSON.stringify({ email, code, newPassword }) });
 }
 
 export function logout() {
@@ -49,6 +57,10 @@ export function fetchMe() {
 
 export function fetchMySchemas() {
   return request("/forms/mine");
+}
+
+export function fetchMyStats() {
+  return request("/forms/mine/stats");
 }
 
 export function fetchFormResponses(formId) {

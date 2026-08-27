@@ -15,15 +15,29 @@ export function AuthProvider({ children }) {
       .finally(() => setAuthLoading(false));
   }, []);
 
-  const signup = useCallback((email, password) => api.signup(email, password), []);
+  // Step 1 of signup — creates the account and emails a verification code.
+  // Doesn't set `user`; a session only exists once the code is verified.
+  const signup = useCallback((username, email, password) => api.signup(username, email, password), []);
 
-  // Step 1 of login — password only. Doesn't set `user`; a session only
-  // exists once the emailed code is verified.
-  const login = useCallback((email, password) => api.login(email, password), []);
+  // Step 2 of signup — verifying the code also logs the new account in.
+  const verifySignupOtp = useCallback(async (email, code) => {
+    const loggedInUser = await api.verifySignupOtp(email, code);
+    setUser(loggedInUser);
+    return loggedInUser;
+  }, []);
 
-  // Step 2 — the emailed code. Success issues the session cookie server-side.
-  const verifyOtp = useCallback(async (email, code) => {
-    const loggedInUser = await api.verifyOtp(email, code);
+  // Plain email+password — no OTP step. Blocked server-side until the
+  // account's email has been verified via signup.
+  const login = useCallback(async (email, password) => {
+    const loggedInUser = await api.login(email, password);
+    setUser(loggedInUser);
+    return loggedInUser;
+  }, []);
+
+  const forgotPassword = useCallback((email) => api.forgotPassword(email), []);
+
+  const resetPassword = useCallback(async (email, code, newPassword) => {
+    const loggedInUser = await api.resetPassword(email, code, newPassword);
     setUser(loggedInUser);
     return loggedInUser;
   }, []);
@@ -34,7 +48,9 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, authLoading, signup, login, verifyOtp, logout }}>
+    <AuthContext.Provider
+      value={{ user, authLoading, signup, verifySignupOtp, login, forgotPassword, resetPassword, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

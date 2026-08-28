@@ -26,10 +26,10 @@ export function AuthProvider({ children }) {
     return loggedInUser;
   }, []);
 
-  // Plain email+password — no OTP step. Blocked server-side until the
-  // account's email has been verified via signup.
-  const login = useCallback(async (email, password) => {
-    const loggedInUser = await api.login(email, password);
+  // Plain username-or-email + password — no OTP step. Blocked server-side
+  // until the account's email has been verified via signup.
+  const login = useCallback(async (identifier, password) => {
+    const loggedInUser = await api.login(identifier, password);
     setUser(loggedInUser);
     return loggedInUser;
   }, []);

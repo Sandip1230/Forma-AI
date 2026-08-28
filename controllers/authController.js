@@ -60,11 +60,15 @@ async function signup(req, res) {
     return res.status(400).json({ error: "Password must be at least 8 characters" });
   }
   const normalizedEmail = email.trim().toLowerCase();
-  const existing = await User.findOne({ email: normalizedEmail });
-  if (existing) return res.status(409).json({ error: "An account with that email already exists" });
+  const trimmedUsername = username.trim();
+  const existing = await User.findOne({ $or: [{ email: normalizedEmail }, { username: trimmedUsername }] });
+  if (existing) {
+    const error = existing.email === normalizedEmail ? "An account with that email already exists" : "That username is taken";
+    return res.status(409).json({ error });
+  }
 
   const passwordHash = await bcrypt.hash(password, 10);
-  await User.create({ username: username.trim(), email: normalizedEmail, passwordHash, emailVerified: false });
+  await User.create({ username: trimmedUsername, email: normalizedEmail, passwordHash, emailVerified: false });
   await createAndSendOtp(normalizedEmail, "signup");
 
   res.status(201).json({
@@ -92,17 +96,19 @@ async function verifySignupOtp(req, res) {
 }
 
 async function login(req, res) {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({ error: "email and password are required" });
+  const { identifier, password } = req.body;
+  if (!identifier || !password) {
+    return res.status(400).json({ error: "username or email, and password, are required" });
   }
-  const normalizedEmail = email.trim().toLowerCase();
-  const user = await User.findOne({ email: normalizedEmail });
+  const trimmed = identifier.trim();
+  // Accept either — email is matched case-insensitively (it's stored
+  // lowercased), username case-sensitively (stored as typed at signup).
+  const user = await User.findOne({ $or: [{ email: trimmed.toLowerCase() }, { username: trimmed }] });
 
   // Same generic message whether the account doesn't exist or the password
   // is wrong — don't tell a caller which one it got right.
   if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
-    return res.status(401).json({ error: "Invalid email or password" });
+    return res.status(401).json({ error: "Invalid username/email or password" });
   }
   if (!user.emailVerified) {
     return res.status(403).json({ error: "Please verify your email before logging in — check your inbox for the code." });

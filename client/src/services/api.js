@@ -35,8 +35,8 @@ export function verifySignupOtp(email, code) {
   return request("/auth/verify-signup-otp", { method: "POST", body: JSON.stringify({ email, code }) });
 }
 
-export function login(email, password) {
-  return request("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
+export function login(identifier, password) {
+  return request("/auth/login", { method: "POST", body: JSON.stringify({ identifier, password }) });
 }
 
 export function forgotPassword(email) {

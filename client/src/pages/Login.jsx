@@ -9,7 +9,7 @@ function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -19,7 +19,7 @@ function Login() {
     setSubmitting(true);
     setError("");
     try {
-      await login(email, password);
+      await login(identifier, password);
       navigate("/");
     } catch (err) {
       setError(err.message || "Could not log in.");
@@ -43,20 +43,20 @@ function Login() {
       <div className="fb-card auth-card">
         <span className="fb-eyebrow">Log in</span>
         <h1 className="fb-title">Welcome back</h1>
-        <p className="fb-subtitle">Enter your email and password to continue.</p>
+        <p className="fb-subtitle">Enter your username or email, and your password, to continue.</p>
 
         {error && <div className="fb-error">{error}</div>}
 
         <form className="df" onSubmit={handleSubmit}>
           <div className="df-field">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="identifier">Username or email</label>
             <input
-              id="email"
-              type="email"
+              id="identifier"
+              type="text"
               required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="username"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
             />
           </div>
           <div className="df-field">

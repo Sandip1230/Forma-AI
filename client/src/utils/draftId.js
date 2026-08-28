@@ -11,3 +11,4 @@ export function getDraftId(formId) {
   }
   return id;
 }
+

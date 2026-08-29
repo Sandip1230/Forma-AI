@@ -29,7 +29,7 @@ function resolveVisibility(fields, values) {
   return Object.fromEntries(fields.map((f) => [f.id, isVisible(f)]));
 }
 
-function DynamicForm({ schema, onSubmit, submitting, prefillValues, aiFilledIds = [], lowConfidenceIds = [], aiWasUsed = false, onValuesChange }) {
+function DynamicForm({ schema, onSubmit, submitting, prefillValues, aiFilledIds = [], aiWasUsed = false, onValuesChange }) {
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
 
   useEffect(() => {
@@ -44,9 +44,6 @@ function DynamicForm({ schema, onSubmit, submitting, prefillValues, aiFilledIds 
     onValuesChange?.(liveValues);
   }, [liveValues, onValuesChange]);
 
-  // Fields the AI was expected to have a shot at but left empty — only
-  // meaningful once extraction has actually run, and only for fields
-  // currently visible (a hidden branch shouldn't nag the user).
   const needsReview = useMemo(() => {
     if (!aiWasUsed) return [];
     return schema.fields
@@ -54,8 +51,25 @@ function DynamicForm({ schema, onSubmit, submitting, prefillValues, aiFilledIds 
       .map((f) => f.id);
   }, [aiWasUsed, aiFilledIds, schema.fields, visibility, liveValues]);
 
+  const progress = useMemo(() => {
+    const requiredVisible = schema.fields.filter((f) => f.required && visibility[f.id]);
+    if (requiredVisible.length === 0) return 100;
+    const filled = requiredVisible.filter((f) => {
+      const v = liveValues[f.id];
+      return v !== undefined && v !== "" && v !== false;
+    }).length;
+    return Math.round((filled / requiredVisible.length) * 100);
+  }, [schema.fields, visibility, liveValues]);
+
   return (
     <form className="df" onSubmit={handleSubmit(onSubmit)} noValidate>
+      <div className="df-progress">
+        <div className="df-progress__bar">
+          <div className="df-progress__fill" style={{ width: `${progress}%` }} />
+        </div>
+        <span className="df-progress__label">{progress}% complete</span>
+      </div>
+
       {aiWasUsed && needsReview.length > 0 && (
         <div className="df-review-banner">
           <span className="df-review-banner__icon">⚠</span>
@@ -73,14 +87,23 @@ function DynamicForm({ schema, onSubmit, submitting, prefillValues, aiFilledIds 
               error={errors[field.id]}
               aiFilled={aiFilledIds.includes(field.id)}
               needsReview={needsReview.includes(field.id)}
-              lowConfidence={lowConfidenceIds.includes(field.id)}
             />
           </div>
         );
       })}
 
       <button type="submit" className="df-submit" disabled={submitting}>
-        {submitting ? "Submitting…" : "Submit"}
+        {submitting ? (
+          <>
+            <span className="df-submit__spinner" />
+            Submitting…
+          </>
+        ) : (
+          <>
+            Submit
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          </>
+        )}
       </button>
     </form>
   );

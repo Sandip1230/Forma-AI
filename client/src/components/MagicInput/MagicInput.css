@@ -1,9 +1,10 @@
 .magic-input {
   background: linear-gradient(135deg, var(--accent-soft), #fce7f3);
   border: 1px solid #ddd6fe;
-  border-radius: var(--radius-md);
-  padding: 18px 20px;
-  margin-bottom: 26px;
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin-bottom: 28px;
+  box-shadow: 0 1px 2px rgba(20, 20, 43, 0.04);
   animation: fade-in var(--duration-med) var(--ease);
 }
 [data-theme="dark"] .magic-input { background: linear-gradient(135deg, #241f3d, #2e2038); border-color: #3a3160; }
@@ -15,13 +16,13 @@
   font-size: 13px;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 10px;
+  margin-bottom: 11px;
 }
 .magic-input__spark { color: var(--accent-pink); }
 
 .magic-input__textarea {
   width: 100%;
-  padding: 11px 13px;
+  padding: 12px 14px;
   border: 1.5px solid var(--border-subtle);
   border-radius: var(--radius-sm);
   font-family: inherit;
@@ -45,7 +46,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 12px;
+  margin-top: 13px;
 }
 
 .magic-input__skip {
@@ -62,7 +63,7 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 9px 16px;
+  padding: 10px 18px;
   background: linear-gradient(120deg, var(--accent), var(--accent-pink));
   color: #fff;
   border: none;

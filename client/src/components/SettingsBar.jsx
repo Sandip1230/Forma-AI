@@ -15,7 +15,7 @@ function Icon({ name }) {
   }
 }
 
-function SettingsBar({ onDataChanged, isAdmin = false }) {
+function SettingsBar({ onDataChanged }) {
   const [toast, setToast] = useState(null); // { text, tone }
   const [busy, setBusy] = useState(null);
   const [docsOpen, setDocsOpen] = useState(false);
@@ -51,27 +51,21 @@ function SettingsBar({ onDataChanged, isAdmin = false }) {
     <div className="settings-bar">
       <span className="settings-bar__label">Quick Actions</span>
       <div className="settings-bar__grid">
-        {isAdmin && (
-          <button className="settings-btn" onClick={handleSeed} disabled={busy === "seed"}>
-            <Icon name="seed" /> {busy === "seed" ? "Seeding…" : "Seed Demo Form"}
-          </button>
-        )}
+        <button className="settings-btn" onClick={handleSeed} disabled={busy === "seed"}>
+          <Icon name="seed" /> {busy === "seed" ? "Seeding…" : "Seed Demo Form"}
+        </button>
         <button className="settings-btn" onClick={handleViewForms}>
           <Icon name="list" /> View All Forms
         </button>
-        {isAdmin && (
-          <button className="settings-btn" onClick={handleExport} disabled={busy === "export"}>
-            <Icon name="export" /> {busy === "export" ? "Exporting…" : "Export Responses"}
-          </button>
-        )}
+        <button className="settings-btn" onClick={handleExport} disabled={busy === "export"}>
+          <Icon name="export" /> {busy === "export" ? "Exporting…" : "Export Responses"}
+        </button>
         <button className="settings-btn" onClick={handleHealth} disabled={busy === "health"}>
           <Icon name="health" /> {busy === "health" ? "Checking…" : "API Health Check"}
         </button>
-        {isAdmin && (
-          <button className="settings-btn settings-btn--danger" onClick={handleReset} disabled={busy === "reset"}>
-            <Icon name="reset" /> {busy === "reset" ? "Resetting…" : "Reset Demo Data"}
-          </button>
-        )}
+        <button className="settings-btn settings-btn--danger" onClick={handleReset} disabled={busy === "reset"}>
+          <Icon name="reset" /> {busy === "reset" ? "Resetting…" : "Reset Demo Data"}
+        </button>
         <button className="settings-btn" onClick={() => setDocsOpen(true)}>
           <Icon name="docs" /> Documentation
         </button>

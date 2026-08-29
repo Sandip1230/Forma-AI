@@ -55,12 +55,8 @@ export function fetchMe() {
   return request("/auth/me");
 }
 
-export function fetchMySchemas() {
-  return request("/forms/mine");
-}
-
-export function fetchMyStats() {
-  return request("/forms/mine/stats");
+export function createSchema(formId, title, fields) {
+  return request("/forms", { method: "POST", body: JSON.stringify({ formId, title, fields }) });
 }
 
 export function fetchFormResponses(formId) {

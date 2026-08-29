@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchMySchemas, fetchFormResponses } from "../services/api";
+import { fetchForms, fetchFormResponses } from "../services/api";
 import Logo from "../components/Logo";
 import "./Dashboard.css";
 import "./Hub.css";
@@ -48,7 +48,7 @@ function SubmissionsPanel({ formId }) {
   );
 }
 
-function YourForms() {
+function AllForms() {
   const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -57,9 +57,9 @@ function YourForms() {
   const load = useCallback(() => {
     setLoading(true);
     setError("");
-    fetchMySchemas()
+    fetchForms()
       .then(setForms)
-      .catch((err) => setError(err.message || "Could not load your forms."))
+      .catch((err) => setError(err.message || "Could not load forms."))
       .finally(() => setLoading(false));
   }, []);
 
@@ -85,9 +85,9 @@ function YourForms() {
 
       <main className="dash-main">
         <div className="dash-intro">
-          <span className="dash-eyebrow">Your workspace</span>
-          <h1 className="dash-title">Your Forms</h1>
-          <p className="dash-subtitle">Forms you've created, and what's been submitted to each.</p>
+          <span className="dash-eyebrow">Schema Store</span>
+          <h1 className="dash-title">All Forms</h1>
+          <p className="dash-subtitle">Every form type in the shared store, and what's been submitted to each.</p>
         </div>
 
         {error && <div className="dash-error">{error}</div>}
@@ -96,7 +96,7 @@ function YourForms() {
           <div className="forms-table__empty">Loading…</div>
         ) : forms.length === 0 ? (
           <div className="forms-table__empty">
-            You haven't created any forms yet. <Link to="/forms/new">Create one</Link>.
+            No forms yet. <Link to="/forms/new">Create one</Link>.
           </div>
         ) : (
           <div className="yf-list">
@@ -126,4 +126,4 @@ function YourForms() {
   );
 }
 
-export default YourForms;
+export default AllForms;

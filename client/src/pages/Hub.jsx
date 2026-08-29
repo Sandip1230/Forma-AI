@@ -28,7 +28,7 @@ function Hub() {
         <div className="dash-intro">
           <span className="dash-eyebrow">Your workspace</span>
           <h1 className="dash-title">Hello {user?.username}</h1>
-          <p className="dash-subtitle">Build a new form, or review the ones you've already created.</p>
+          <p className="dash-subtitle">Build a new form, or browse everything in the shared store.</p>
         </div>
 
         <div className="hub-tiles">
@@ -39,18 +39,18 @@ function Hub() {
               </svg>
             </div>
             <h2>Create Form</h2>
-            <p>Manage your forms and create new ones.</p>
+            <p>Manage the shared form store and design new form types.</p>
           </Link>
 
-          <Link to="/my-forms" className="hub-tile">
+          <Link to="/forms" className="hub-tile">
             <div className="hub-tile__icon hub-tile__icon--pink">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                 <path d="M6 2h9l5 5v13a1 1 0 01-1 1H6a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" strokeWidth="1.7" />
                 <path d="M9 11h6M9 15h6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
               </svg>
             </div>
-            <h2>Your Forms</h2>
-            <p>See the forms you've built and their submissions.</p>
+            <h2>All Forms</h2>
+            <p>Browse every form and its submissions.</p>
           </Link>
         </div>
       </main>

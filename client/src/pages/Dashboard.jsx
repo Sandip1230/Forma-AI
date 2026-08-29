@@ -6,13 +6,12 @@ import SettingsBar from "../components/SettingsBar";
 import StatCard from "../components/StatCard";
 import FormsTable from "../components/FormsTable";
 import { useAuth } from "../context/AuthContext";
-import { fetchForms, fetchDashboardStats, fetchMySchemas, fetchMyStats } from "../services/api";
+import { fetchForms, fetchDashboardStats } from "../services/api";
 import "./Dashboard.css";
 import "./Hub.css";
 
 function Dashboard() {
   const { user, logout } = useAuth();
-  const isAdmin = user?.role === "admin";
 
   const [forms, setForms] = useState([]);
   const [stats, setStats] = useState({ totalForms: 0, totalSubmissions: 0, submissionsToday: 0 });
@@ -23,9 +22,7 @@ function Dashboard() {
   const load = useCallback(() => {
     setLoading(true);
     setError("");
-    const loadForms = isAdmin ? fetchForms : fetchMySchemas;
-    const loadStats = isAdmin ? fetchDashboardStats : fetchMyStats;
-    Promise.all([loadForms(), loadStats()])
+    Promise.all([fetchForms(), fetchDashboardStats()])
       .then(([formsData, statsData]) => {
         setForms(formsData);
         setStats(statsData);
@@ -36,7 +33,7 @@ function Dashboard() {
         setApiOnline(false);
       })
       .finally(() => setLoading(false));
-  }, [isAdmin]);
+  }, []);
 
   useEffect(() => {
     load();
@@ -63,11 +60,9 @@ function Dashboard() {
             <span className={`dash-api-status__dot ${apiOnline ? "" : "dash-api-status__dot--off"}`} />
             {apiOnline ? "API Online" : "API Unreachable"}
           </span>
-          {!isAdmin && (
-            <Link to="/" className="hub-admin-link">
-              ← Back
-            </Link>
-          )}
+          <Link to="/" className="hub-admin-link">
+            ← Back
+          </Link>
           <button className="hub-logout" onClick={logout}>
             Log out
           </button>
@@ -77,13 +72,9 @@ function Dashboard() {
 
       <main className="dash-main">
         <div className="dash-intro">
-          <span className="dash-eyebrow">{isAdmin ? "Project Dashboard" : "Your Dashboard"}</span>
+          <span className="dash-eyebrow">Project Dashboard</span>
           <h1 className="dash-title">Hello {user?.username || user?.email}</h1>
-          <p className="dash-subtitle">
-            {isAdmin
-              ? "Manage form schemas and review incoming submissions across every user."
-              : "Manage your forms and review what's been submitted to them."}
-          </p>
+          <p className="dash-subtitle">Manage form schemas and review incoming submissions.</p>
         </div>
 
         {error && <div className="dash-error">{error}</div>}
@@ -103,7 +94,7 @@ function Dashboard() {
           />
         </div>
 
-        <SettingsBar onDataChanged={load} isAdmin={isAdmin} />
+        <SettingsBar onDataChanged={load} />
 
         <section className="dash-section" id="dash-forms-section">
           <div className="dash-section__header">

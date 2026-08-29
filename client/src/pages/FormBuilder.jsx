@@ -1,7 +1,9 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useFormSchema } from "../hooks/useFormSchema";
-import { submitFormResponse, fetchDraft, saveDraft, deleteDraft } from "../services/api";
+import { useDraftSync } from "../hooks/useDraftSync";
+import { useSubmitForm } from "../hooks/useSubmitForm";
+import { useFormSessionStore } from "../store/formSessionStore";
 import { getDraftId } from "../utils/draftId";
 import DynamicForm from "../components/DynamicForm/DynamicForm";
 import MagicInput from "../components/MagicInput/MagicInput";
@@ -11,65 +13,19 @@ import "./FormBuilder.css";
 function FormBuilder() {
   const { formId } = useParams();
   const { schema, loading, error } = useFormSchema(formId);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [submitError, setSubmitError] = useState("");
-  const [prefillValues, setPrefillValues] = useState(null);
-  const [aiFilledIds, setAiFilledIds] = useState([]);
-  const [lowConfidenceIds, setLowConfidenceIds] = useState([]);
-  const [aiWasUsed, setAiWasUsed] = useState(false);
-
   const draftId = getDraftId(formId);
-  const [draftLoaded, setDraftLoaded] = useState(false);
-  const [draftFound, setDraftFound] = useState(false);
-  const [draftValues, setDraftValues] = useState(null);
-  const [savingDraft, setSavingDraft] = useState(false);
-  const saveTimerRef = useRef(null);
 
+  const { prefillValues, aiFilledIds, lowConfidenceIds, aiWasUsed, setExtracted, resetSession } = useFormSessionStore();
+  const { draftValues, draftFound, draftLoaded, savingDraft, dismissDraftBanner, handleValuesChange } =
+    useDraftSync(formId, draftId, schema);
+  const { submit, submitting, submitted, submitError } = useSubmitForm(formId, draftId);
+
+  // A fresh form session per formId — without this, switching between two
+  // different forms in the same tab would carry over the previous form's AI
+  // prefill/draft/submitted state into the new one.
   useEffect(() => {
-    if (!schema) return;
-    fetchDraft(formId, draftId)
-      .then((data) => {
-        if (data) {
-          setDraftValues(data.values);
-          setDraftFound(true);
-        }
-      })
-      .finally(() => setDraftLoaded(true));
-  }, [schema, formId, draftId]);
-
-  const handleValuesChange = useCallback((values) => {
-    const hasAnyValue = Object.values(values).some((v) => v !== "" && v !== undefined && v !== false);
-    if (!hasAnyValue) return;
-    clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(() => {
-      setSavingDraft(true);
-      saveDraft(formId, draftId, values)
-        .catch(() => {}) // best-effort — a failed autosave shouldn't interrupt someone filling out the form
-        .finally(() => setSavingDraft(false));
-    }, 1200);
-  }, [formId, draftId]);
-
-  const handleSubmit = async (values) => {
-    setSubmitting(true);
-    setSubmitError("");
-    try {
-      await submitFormResponse(formId, { ...values, __draftId: draftId });
-      deleteDraft(formId, draftId).catch(() => {});
-      setSubmitted(true);
-    } catch (err) {
-      setSubmitError(err.message || "Could not submit the form. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleExtracted = (result) => {
-    setPrefillValues(result.values);
-    setAiFilledIds(result.filledFieldIds);
-    setLowConfidenceIds(result.lowConfidenceFieldIds || []);
-    setAiWasUsed(true);
-  };
+    resetSession();
+  }, [formId, resetSession]);
 
   return (
     <div className="fb-shell">
@@ -123,15 +79,15 @@ function FormBuilder() {
             {draftLoaded && draftFound && (
               <div className="fb-draft-banner">
                 <span>✓ Picking up where you left off — a saved draft was restored.</span>
-                <button onClick={() => setDraftFound(false)}>Dismiss</button>
+                <button onClick={dismissDraftBanner}>Dismiss</button>
               </div>
             )}
 
-            <MagicInput formId={formId} onExtracted={handleExtracted} />
+            <MagicInput formId={formId} onExtracted={setExtracted} />
 
             <DynamicForm
               schema={schema}
-              onSubmit={handleSubmit}
+              onSubmit={submit}
               submitting={submitting}
               prefillValues={prefillValues || draftValues}
               aiFilledIds={aiFilledIds}
@@ -144,7 +100,6 @@ function FormBuilder() {
 
         {!loading && !error && submitted && (
           <div className="fb-success">
-            
             <div className="fb-success__icon">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </div>

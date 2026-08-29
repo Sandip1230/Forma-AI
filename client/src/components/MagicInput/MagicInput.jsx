@@ -64,6 +64,15 @@ function MagicInput({ formId, onExtracted }) {
           )}
         </button>
       </div>
+
+      {loading && (
+        <div className="magic-input__skeleton" aria-hidden="true">
+          <div className="magic-input__skeleton-line magic-input__skeleton-line--label" />
+          <div className="magic-input__skeleton-line" />
+          <div className="magic-input__skeleton-line magic-input__skeleton-line--label" />
+          <div className="magic-input__skeleton-line" />
+        </div>
+      )}
     </div>
   );
 }

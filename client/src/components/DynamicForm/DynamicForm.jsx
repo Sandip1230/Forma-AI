@@ -80,7 +80,7 @@ function DynamicForm({ schema, onSubmit, submitting, prefillValues, aiFilledIds 
       {schema.fields.map((field) => {
         if (!visibility[field.id]) return null;
         return (
-          <div key={field.id} className="df-field-wrap fade-in">
+          <div key={field.id} className="df-field-wrap">
             <FieldRenderer
               field={field}
               register={register}

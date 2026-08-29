@@ -216,7 +216,19 @@
 }
 .df-review-banner__icon { flex-shrink: 0; }
 
-.df-field-wrap { animation-duration: 0.25s; }
+/* Newly-revealed conditional fields unmount/mount (see DynamicForm.jsx's
+   `if (!visibility[field.id]) return null`), so this keyframe animation
+   genuinely fires at the moment a showIf condition flips true — a real
+   "smoothly expanding section" effect, not just a fade. transform-origin
+   makes it read as unfolding downward from the field above it. */
+.df-field-wrap {
+  transform-origin: top;
+  animation: df-field-expand 0.3s var(--ease);
+}
+@keyframes df-field-expand {
+  from { opacity: 0; transform: scaleY(0.9) translateY(-6px); }
+  to { opacity: 1; transform: scaleY(1) translateY(0); }
+}
 
 /* ---- submit button ---- */
 .df-submit {

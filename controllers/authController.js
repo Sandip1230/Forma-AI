@@ -35,7 +35,7 @@ async function consumeOtp(email, purpose, code) {
 }
 
 function issueToken(res, user) {
-  const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, process.env.JWT_SECRET, {
+  const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, {
     expiresIn: "7d",
   });
   res.cookie(TOKEN_COOKIE, token, {
@@ -48,7 +48,7 @@ function issueToken(res, user) {
 }
 
 function userView(user) {
-  return { id: user._id, username: user.username, email: user.email, role: user.role };
+  return { id: user._id, username: user.username, email: user.email };
 }
 
 async function signup(req, res) {
@@ -160,7 +160,7 @@ function logout(req, res) {
 }
 
 async function me(req, res) {
-  const user = await User.findById(req.user.id).select("username email role").lean();
+  const user = await User.findById(req.user.id).select("username email").lean();
   if (!user) return res.status(404).json({ error: "Account not found" });
   res.json(userView(user));
 }

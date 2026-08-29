@@ -33,9 +33,6 @@ const formSchemaSchema = new mongoose.Schema(
     formId: { type: String, required: true, unique: true, index: true },
     title: { type: String, required: true },
     fields: { type: [fieldSchema], default: [] },
-    // null for admin-seeded/shared forms (e.g. claim-demo) that aren't owned
-    // by any particular user but must stay fillable by the public.
-    ownerId: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null, index: true },
   },
   { timestamps: true }
 );

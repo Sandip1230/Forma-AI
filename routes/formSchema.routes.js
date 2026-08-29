@@ -1,26 +1,22 @@
 const express = require("express");
 const {
-  getSchema, listSchemas, listMySchemas, createSchema, submitResponse, getFormResponses,
-  getStats, getMyStats, exportResponses, seedDemo, resetDemoData,
+  getSchema, listSchemas, createSchema, submitResponse, getFormResponses,
+  getStats, exportResponses, seedDemo, resetDemoData,
 } = require("../controllers/formSchemaController");
 const { extract } = require("../controllers/extractionController");
 const { getDraft, saveDraft, deleteDraft } = require("../controllers/draftController");
-const { requireAuth, requireAdmin } = require("../middleware/auth");
+const { requireAuth } = require("../middleware/auth");
 
 const router = express.Router();
 
-// Admin-only: global data across every user, and the fixed demo dataset —
-// neither is part of a regular user's own-forms workflow.
-router.get("/export", requireAdmin, exportResponses);
-router.post("/seed-demo", requireAdmin, seedDemo);
-router.delete("/demo-data", requireAdmin, resetDemoData);
-router.get("/", requireAdmin, listSchemas);
-router.get("/stats", requireAdmin, getStats);
-
-// Shared Dashboard — any logged-in user; scoped to their own forms. An
-// admin visiting the same page uses the admin-only routes above instead.
-router.get("/mine", requireAuth, listMySchemas);
-router.get("/mine/stats", requireAuth, getMyStats);
+// One shared Schema Store — any logged-in user can create/manage forms and
+// see everyone's stats/submissions, matching a small team's internal tool
+// rather than per-user private form collections.
+router.get("/export", requireAuth, exportResponses);
+router.post("/seed-demo", requireAuth, seedDemo);
+router.delete("/demo-data", requireAuth, resetDemoData);
+router.get("/", requireAuth, listSchemas);
+router.get("/stats", requireAuth, getStats);
 router.post("/", requireAuth, createSchema);
 router.get("/:formId/responses", requireAuth, getFormResponses);
 

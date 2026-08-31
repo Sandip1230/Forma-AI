@@ -16,7 +16,7 @@ function DocsModal({ onClose }) {
         <div className="docs-panel__header">
           <h2>API Reference</h2>
           <button onClick={onClose} aria-label="Close">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
+            <svg width="16" height="17" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
           </button>
         </div>
         <div className="docs-panel__body">

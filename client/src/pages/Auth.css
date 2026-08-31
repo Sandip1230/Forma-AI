@@ -1,3 +1,143 @@
+/* ---- split-screen auth layout ---- */
+/* Desktop-oriented by design — no mobile breakpoints here on purpose. */
+
+.auth-shell {
+  min-height: 100vh;
+  display: flex;
+}
+
+.auth-brand-panel {
+  flex: 0 0 44%;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, #0f766e 0%, #0e7490 55%, #1d4ed8 100%);
+  color: #fff;
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.auth-brand-panel__glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+}
+.auth-brand-panel__glow--a { width: 420px; height: 420px; top: -140px; right: -110px; background: rgba(34, 211, 238, 0.35); }
+.auth-brand-panel__glow--b { width: 380px; height: 380px; bottom: -160px; left: -100px; background: rgba(45, 212, 191, 0.3); }
+
+.auth-brand-logo {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #fff;
+  margin-bottom: 52px;
+  width: fit-content;
+}
+.auth-brand-logo span {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.auth-brand-panel__content {
+  position: relative;
+  z-index: 1;
+  max-width: 440px;
+}
+
+.auth-brand-title {
+  font-size: 33px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  margin: 0 0 18px;
+}
+
+.auth-brand-sub {
+  font-size: 15px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.82);
+  margin: 0 0 36px;
+}
+
+.auth-brand-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.auth-brand-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.92);
+}
+.auth-brand-features__icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  margin-top: 1px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-form-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background: var(--bg-page);
+}
+
+.auth-form-panel__inner {
+  width: 100%;
+  max-width: 380px;
+  animation: fade-in var(--duration-med) var(--ease);
+}
+
+.auth-eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0e7490;
+  background: #ecfeff;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  margin-bottom: 14px;
+}
+[data-theme="dark"] .auth-eyebrow { color: #67e8f9; background: #0b2a30; }
+
+.auth-title {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+
+.auth-subtitle {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  margin: 0 0 28px;
+}
+
+/* ---- shared bits (also used inside .auth-form-panel__inner) ---- */
+
 .auth-card {
   max-width: 420px;
 }
@@ -9,7 +149,7 @@
   color: var(--text-muted);
 }
 .auth-switch a {
-  color: var(--accent);
+  color: #0d9488;
   font-weight: 600;
   text-decoration: none;
 }
@@ -21,7 +161,7 @@
   background: none;
   border: none;
   padding: 0;
-  color: var(--accent);
+  color: #0d9488;
   font-weight: 600;
   font-size: 13px;
   cursor: pointer;
@@ -57,4 +197,22 @@
 }
 .auth-dev-login:hover:not(:disabled) {
   background: var(--border-subtle);
+}
+
+/* The app's global --accent is teal too now, but the auth page's primary
+   button goes teal->blue specifically, echoing the branding panel's
+   two-tone gradient rather than the app-wide monochrome teal button.
+   :not(.auth-dev-login) keeps that button visually distinct/neutral —
+   without it, this rule's higher specificity would override its gray
+   background despite coming first in the file. */
+.auth-form-panel .df-submit:not(.auth-dev-login) {
+  background: linear-gradient(120deg, #0d9488, #1d4ed8);
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.28);
+}
+.auth-form-panel .df-submit:not(.auth-dev-login):hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(13, 148, 136, 0.36);
+}
+.auth-form-panel .df-field input:focus {
+  border-color: #0d9488;
+  box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.14);
 }

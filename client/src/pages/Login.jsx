@@ -6,7 +6,7 @@ import "./FormBuilder.css";
 import "./Auth.css";
 
 function Login() {
-  const { login } = useAuth();
+  const { login, devLogin } = useAuth();
   const navigate = useNavigate();
 
   const [identifier, setIdentifier] = useState("");
@@ -23,6 +23,19 @@ function Login() {
       navigate("/");
     } catch (err) {
       setError(err.message || "Could not log in.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDevLogin = async () => {
+    setSubmitting(true);
+    setError("");
+    try {
+      await devLogin();
+      navigate("/");
+    } catch (err) {
+      setError(err.message || "Dev login is disabled on this server.");
     } finally {
       setSubmitting(false);
     }
@@ -81,6 +94,15 @@ function Login() {
         <p className="auth-switch">
           Don't have an account? <Link to="/signup">Sign up</Link>
         </p>
+
+        {import.meta.env.DEV && (
+          <>
+            <div className="auth-divider">Local dev only</div>
+            <button type="button" className="df-submit auth-dev-login" onClick={handleDevLogin} disabled={submitting}>
+              🛠 Dev login (test user)
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

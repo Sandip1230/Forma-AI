@@ -39,6 +39,12 @@ export function login(identifier, password) {
   return request("/auth/login", { method: "POST", body: JSON.stringify({ identifier, password }) });
 }
 
+// Dev-only shortcut — the server 404s this unless ALLOW_DEV_LOGIN=true is
+// set there, so this is a no-op against any server that hasn't opted in.
+export function devLogin() {
+  return request("/auth/dev-login", { method: "POST" });
+}
+
 export function forgotPassword(email) {
   return request("/auth/forgot-password", { method: "POST", body: JSON.stringify({ email }) });
 }

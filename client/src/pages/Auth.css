@@ -29,3 +29,32 @@
 .auth-linklike:hover {
   text-decoration: underline;
 }
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-subtle);
+}
+
+.auth-dev-login {
+  width: 100%;
+  background: var(--bg-card-raised);
+  color: var(--text-secondary);
+  box-shadow: none;
+}
+.auth-dev-login:hover:not(:disabled) {
+  background: var(--border-subtle);
+}

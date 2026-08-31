@@ -34,6 +34,12 @@ export function AuthProvider({ children }) {
     return loggedInUser;
   }, []);
 
+  const devLogin = useCallback(async () => {
+    const loggedInUser = await api.devLogin();
+    setUser(loggedInUser);
+    return loggedInUser;
+  }, []);
+
   const forgotPassword = useCallback((email) => api.forgotPassword(email), []);
 
   const resetPassword = useCallback(async (email, code, newPassword) => {
@@ -49,7 +55,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, authLoading, signup, verifySignupOtp, login, forgotPassword, resetPassword, logout }}
+      value={{ user, authLoading, signup, verifySignupOtp, login, devLogin, forgotPassword, resetPassword, logout }}
     >
       {children}
     </AuthContext.Provider>

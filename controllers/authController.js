@@ -154,6 +154,34 @@ async function resetPassword(req, res) {
   res.json(userView(user));
 }
 
+const DEV_USER_EMAIL = "dev@forma-ai.local";
+const DEV_USER_USERNAME = "devuser";
+
+// Skips signup/OTP/password entirely and logs into one fixed, pre-verified
+// test account — for teammates whose local email setup makes the real OTP
+// flow unworkable. Off by default: requires ALLOW_DEV_LOGIN=true in the
+// server's own .env (checked here, not just NODE_ENV, so it can't end up
+// live just because someone forgot to set NODE_ENV=production somewhere).
+async function devLogin(req, res) {
+  if (process.env.ALLOW_DEV_LOGIN !== "true") {
+    return res.status(404).json({ error: "Not found" });
+  }
+
+  let user = await User.findOne({ email: DEV_USER_EMAIL });
+  if (!user) {
+    const passwordHash = await bcrypt.hash(crypto.randomBytes(24).toString("hex"), 10);
+    user = await User.create({
+      username: DEV_USER_USERNAME,
+      email: DEV_USER_EMAIL,
+      passwordHash,
+      emailVerified: true,
+    });
+  }
+
+  issueToken(res, user);
+  res.json(userView(user));
+}
+
 function logout(req, res) {
   res.clearCookie(TOKEN_COOKIE);
   res.status(204).end();
@@ -169,6 +197,7 @@ module.exports = {
   signup: asyncHandler(signup),
   verifySignupOtp: asyncHandler(verifySignupOtp),
   login: asyncHandler(login),
+  devLogin: asyncHandler(devLogin),
   forgotPassword: asyncHandler(forgotPassword),
   resetPassword: asyncHandler(resetPassword),
   logout,

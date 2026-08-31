@@ -1,13 +1,13 @@
 .magic-input {
-  background: linear-gradient(135deg, var(--accent-soft), #fce7f3);
-  border: 1px solid #ddd6fe;
+  background: linear-gradient(135deg, var(--accent-soft), #dbeafe);
+  border: 1px solid #99f6e4;
   border-radius: 14px;
   padding: 20px 22px;
   margin-bottom: 28px;
   box-shadow: 0 1px 2px rgba(20, 20, 43, 0.04);
   animation: fade-in var(--duration-med) var(--ease);
 }
-[data-theme="dark"] .magic-input { background: linear-gradient(135deg, #241f3d, #2e2038); border-color: #3a3160; }
+[data-theme="dark"] .magic-input { background: linear-gradient(135deg, #0f2a2e, #12243d); border-color: #1e4550; }
 
 .magic-input__label {
   display: flex;
@@ -18,7 +18,7 @@
   color: var(--text-primary);
   margin-bottom: 11px;
 }
-.magic-input__spark { color: var(--accent-pink); }
+.magic-input__spark { color: var(--accent-blue); }
 
 .magic-input__textarea {
   width: 100%;
@@ -64,7 +64,7 @@
   align-items: center;
   gap: 7px;
   padding: 10px 18px;
-  background: linear-gradient(120deg, var(--accent), var(--accent-pink));
+  background: linear-gradient(120deg, var(--accent), var(--accent-blue));
   color: #fff;
   border: none;
   border-radius: var(--radius-sm);
@@ -121,4 +121,4 @@
   padding: 0;
 }
 .magic-reopen:hover { text-decoration: underline; }
-.magic-reopen__spark { color: var(--accent-pink); }
+.magic-reopen__spark { color: var(--accent-blue); }

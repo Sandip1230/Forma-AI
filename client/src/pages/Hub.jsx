@@ -43,7 +43,7 @@ function Hub() {
           </Link>
 
           <Link to="/forms" className="hub-tile">
-            <div className="hub-tile__icon hub-tile__icon--pink">
+            <div className="hub-tile__icon hub-tile__icon--blue">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                 <path d="M6 2h9l5 5v13a1 1 0 01-1 1H6a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" strokeWidth="1.7" />
                 <path d="M9 11h6M9 15h6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />

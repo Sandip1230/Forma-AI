@@ -50,7 +50,7 @@
 .hub-tile:hover {
   transform: translateY(-2px);
   border-color: var(--accent);
-  box-shadow: 0 4px 14px rgba(109, 91, 245, 0.14), 0 20px 48px rgba(20, 20, 43, 0.08);
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.14), 0 20px 48px rgba(20, 20, 43, 0.08);
 }
 
 .hub-tile__icon {
@@ -63,7 +63,7 @@
   margin-bottom: 16px;
 }
 .hub-tile__icon--accent { background: var(--accent-soft); color: var(--accent); }
-.hub-tile__icon--pink { background: var(--accent-soft); color: var(--accent-pink); }
+.hub-tile__icon--blue { background: var(--accent-soft); color: var(--accent-blue); }
 
 .hub-tile h2 {
   font-size: 17px;

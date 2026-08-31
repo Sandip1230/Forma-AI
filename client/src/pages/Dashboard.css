@@ -17,7 +17,7 @@
 .dash-brand-text {
   font-size: 16px;
   font-weight: 800;
-  background: linear-gradient(120deg, #6d5bf5, #ec4899);
+  background: linear-gradient(120deg, #0d9488, #2563eb);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -79,8 +79,8 @@
 }
 .stat-card--accent .stat-card__icon { background: var(--accent-soft); color: var(--accent); }
 .stat-card--success .stat-card__icon { background: var(--success-soft); color: var(--success); }
-.stat-card--pink .stat-card__icon { background: #fce7f3; color: var(--accent-pink); }
-[data-theme="dark"] .stat-card--pink .stat-card__icon { background: #3a1f2e; }
+.stat-card--blue .stat-card__icon { background: #dbeafe; color: var(--accent-blue); }
+[data-theme="dark"] .stat-card--blue .stat-card__icon { background: #1e2f4a; }
 .stat-card__value { font-size: 22px; font-weight: 800; line-height: 1.1; }
 .stat-card__label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
@@ -217,15 +217,15 @@
   position: absolute;
   inset: -2px;
   background-image:
-    linear-gradient(rgba(109, 91, 245, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(109, 91, 245, 0.06) 1px, transparent 1px);
+    linear-gradient(rgba(13, 148, 136, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13, 148, 136, 0.06) 1px, transparent 1px);
   background-size: 42px 42px;
   mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
 }
 [data-theme="dark"] .dash-bg__grid {
   background-image:
-    linear-gradient(rgba(139, 124, 247, 0.14) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(139, 124, 247, 0.14) 1px, transparent 1px);
+    linear-gradient(rgba(45, 212, 191, 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45, 212, 191, 0.14) 1px, transparent 1px);
 }
 
 .dash-bg__orb {
@@ -236,17 +236,17 @@
 .dash-bg__orb--a {
   width: 420px; height: 420px;
   top: -120px; left: -100px;
-  background: radial-gradient(circle, rgba(109, 91, 245, 0.28), transparent 70%);
+  background: radial-gradient(circle, rgba(13, 148, 136, 0.28), transparent 70%);
   animation: dash-orb-drift-a 16s ease-in-out infinite;
 }
 .dash-bg__orb--b {
   width: 480px; height: 480px;
   top: 200px; right: -160px;
-  background: radial-gradient(circle, rgba(236, 72, 153, 0.2), transparent 70%);
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.2), transparent 70%);
   animation: dash-orb-drift-b 19s ease-in-out infinite;
 }
-[data-theme="dark"] .dash-bg__orb--a { background: radial-gradient(circle, rgba(139, 124, 247, 0.4), transparent 70%); }
-[data-theme="dark"] .dash-bg__orb--b { background: radial-gradient(circle, rgba(244, 114, 182, 0.32), transparent 70%); }
+[data-theme="dark"] .dash-bg__orb--a { background: radial-gradient(circle, rgba(45, 212, 191, 0.4), transparent 70%); }
+[data-theme="dark"] .dash-bg__orb--b { background: radial-gradient(circle, rgba(96, 165, 250, 0.32), transparent 70%); }
 
 @keyframes dash-orb-drift-a {
   0%, 100% { transform: translate(0, 0); }
@@ -261,7 +261,7 @@
   position: absolute;
   left: 0; right: 0;
   height: 140px;
-  background: linear-gradient(180deg, transparent, rgba(139, 124, 247, 0.05), transparent);
+  background: linear-gradient(180deg, transparent, rgba(45, 212, 191, 0.05), transparent);
   animation: dash-scan 9s linear infinite;
   opacity: 0;
 }

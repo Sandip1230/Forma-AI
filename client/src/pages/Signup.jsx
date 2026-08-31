@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import Logo from "../components/Logo";
+import AuthBrandPanel from "../components/AuthBrandPanel";
 import "./FormBuilder.css";
 import "./Auth.css";
 
@@ -51,23 +51,16 @@ function Signup() {
   };
 
   return (
-    <div className="fb-shell">
-      <div className="fb-bg" aria-hidden="true">
-        <div className="fb-bg__wave" />
-      </div>
-      <div className="fb-header">
-        <Link to="/" className="fb-header__brand-link">
-          <Logo size={36} />
-          <span className="fb-brand">Forma AI</span>
-        </Link>
-      </div>
+    <div className="auth-shell">
+      <AuthBrandPanel />
 
-      <div className="fb-card auth-card">
+      <div className="auth-form-panel">
+        <div className="auth-form-panel__inner">
         {step === "details" && (
           <>
-            <span className="fb-eyebrow">Sign up</span>
-            <h1 className="fb-title">Create your account</h1>
-            <p className="fb-subtitle">You'll be able to build and manage your own forms.</p>
+            <span className="auth-eyebrow">Sign up</span>
+            <h1 className="auth-title">Create your account</h1>
+            <p className="auth-subtitle">You'll be able to build and manage your own forms.</p>
 
             {error && <div className="fb-error">{error}</div>}
 
@@ -124,9 +117,9 @@ function Signup() {
 
         {step === "verify" && (
           <>
-            <span className="fb-eyebrow">Verify your email</span>
-            <h1 className="fb-title">Enter your code</h1>
-            <p className="fb-subtitle">We emailed a 6-digit code to {email}. It expires in 10 minutes.</p>
+            <span className="auth-eyebrow">Verify your email</span>
+            <h1 className="auth-title">Enter your code</h1>
+            <p className="auth-subtitle">We emailed a 6-digit code to {email}. It expires in 10 minutes.</p>
 
             {error && <div className="fb-error">{error}</div>}
 
@@ -156,6 +149,7 @@ function Signup() {
             </p>
           </>
         )}
+        </div>
       </div>
     </div>
   );

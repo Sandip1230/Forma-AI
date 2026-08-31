@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import Logo from "../components/Logo";
+import AuthBrandPanel from "../components/AuthBrandPanel";
 import "./FormBuilder.css";
 import "./Auth.css";
 
@@ -52,23 +52,16 @@ function ForgotPassword() {
   };
 
   return (
-    <div className="fb-shell">
-      <div className="fb-bg" aria-hidden="true">
-        <div className="fb-bg__wave" />
-      </div>
-      <div className="fb-header">
-        <Link to="/" className="fb-header__brand-link">
-          <Logo size={36} />
-          <span className="fb-brand">Forma AI</span>
-        </Link>
-      </div>
+    <div className="auth-shell">
+      <AuthBrandPanel />
 
-      <div className="fb-card auth-card">
+      <div className="auth-form-panel">
+        <div className="auth-form-panel__inner">
         {step === "request" && (
           <>
-            <span className="fb-eyebrow">Reset password</span>
-            <h1 className="fb-title">Forgot your password?</h1>
-            <p className="fb-subtitle">Enter your email and we'll send you a reset code.</p>
+            <span className="auth-eyebrow">Reset password</span>
+            <h1 className="auth-title">Forgot your password?</h1>
+            <p className="auth-subtitle">Enter your email and we'll send you a reset code.</p>
 
             {error && <div className="fb-error">{error}</div>}
 
@@ -97,9 +90,9 @@ function ForgotPassword() {
 
         {step === "reset" && (
           <>
-            <span className="fb-eyebrow">Reset password</span>
-            <h1 className="fb-title">Enter your code</h1>
-            <p className="fb-subtitle">{info || `If ${email} has an account, a code was sent — enter it below along with your new password.`}</p>
+            <span className="auth-eyebrow">Reset password</span>
+            <h1 className="auth-title">Enter your code</h1>
+            <p className="auth-subtitle">{info || `If ${email} has an account, a code was sent — enter it below along with your new password.`}</p>
 
             {error && <div className="fb-error">{error}</div>}
 
@@ -153,6 +146,7 @@ function ForgotPassword() {
             </p>
           </>
         )}
+        </div>
       </div>
     </div>
   );

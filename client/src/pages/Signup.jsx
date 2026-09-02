@@ -14,7 +14,6 @@ function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [inviteCode, setInviteCode] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -28,7 +27,7 @@ function Signup() {
     }
     setSubmitting(true);
     try {
-      await signup(username, email, password, inviteCode);
+      await signup(username, email, password);
       setStep("verify");
     } catch (err) {
       setError(err.message || "Could not create your account.");
@@ -61,21 +60,11 @@ function Signup() {
           <>
             <span className="auth-eyebrow">Sign up</span>
             <h1 className="auth-title">Create your account</h1>
-            <p className="auth-subtitle">Ask whoever invited you for the invite code below.</p>
+            <p className="auth-subtitle">You'll be able to build and manage your own forms.</p>
 
             {error && <div className="fb-error">{error}</div>}
 
             <form className="df" onSubmit={handleDetailsSubmit}>
-              <div className="df-field">
-                <label htmlFor="inviteCode">Invite code</label>
-                <input
-                  id="inviteCode"
-                  type="text"
-                  required
-                  value={inviteCode}
-                  onChange={(e) => setInviteCode(e.target.value)}
-                />
-              </div>
               <div className="df-field">
                 <label htmlFor="username">Username</label>
                 <input id="username" type="text" required value={username} onChange={(e) => setUsername(e.target.value)} />

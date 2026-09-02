@@ -27,8 +27,8 @@ async function request(path, options = {}) {
   return res.json();
 }
 
-export function signup(username, email, password, inviteCode) {
-  return request("/auth/signup", { method: "POST", body: JSON.stringify({ username, email, password, inviteCode }) });
+export function signup(username, email, password) {
+  return request("/auth/signup", { method: "POST", body: JSON.stringify({ username, email, password }) });
 }
 
 export function verifySignupOtp(email, code) {

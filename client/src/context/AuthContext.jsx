@@ -17,7 +17,10 @@ export function AuthProvider({ children }) {
 
   // Step 1 of signup — creates the account and emails a verification code.
   // Doesn't set `user`; a session only exists once the code is verified.
-  const signup = useCallback((username, email, password) => api.signup(username, email, password), []);
+  const signup = useCallback(
+    (username, email, password, inviteCode) => api.signup(username, email, password, inviteCode),
+    []
+  );
 
   // Step 2 of signup — verifying the code also logs the new account in.
   const verifySignupOtp = useCallback(async (email, code) => {

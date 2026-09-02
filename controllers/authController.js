@@ -52,12 +52,21 @@ function userView(user) {
 }
 
 async function signup(req, res) {
-  const { username, email, password } = req.body;
+  const { username, email, password, inviteCode } = req.body;
   if (!username || !email || !password) {
     return res.status(400).json({ error: "username, email and password are required" });
   }
   if (password.length < 8) {
     return res.status(400).json({ error: "Password must be at least 8 characters" });
+  }
+  // Any authenticated account currently gets equal access to every form and
+  // every submission in the shared store (see routes/formSchema.routes.js) —
+  // there's no per-account role or ownership boundary. Gating signup behind
+  // a shared invite code is what keeps that "authenticated == trusted
+  // teammate" assumption true, instead of anyone on the internet who can
+  // receive an email being able to self-provision access to everyone's data.
+  if (!process.env.SIGNUP_INVITE_CODE || inviteCode !== process.env.SIGNUP_INVITE_CODE) {
+    return res.status(403).json({ error: "Invalid invite code" });
   }
   const normalizedEmail = email.trim().toLowerCase();
   const trimmedUsername = username.trim();

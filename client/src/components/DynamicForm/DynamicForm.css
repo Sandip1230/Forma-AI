@@ -60,6 +60,8 @@
 .df-field input[type="text"],
 .df-field input[type="date"],
 .df-field input[type="number"],
+.df-field input[type="password"],
+.df-field input[type="email"],
 .df-field select,
 .df-field textarea {
   padding: 12px 14px;

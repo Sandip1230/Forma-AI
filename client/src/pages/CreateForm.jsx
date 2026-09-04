@@ -39,6 +39,8 @@ function blankField() {
     type: "text",
     required: false,
     placeholder: "",
+    pattern: "",
+    patternMessage: "",
     options: [{ value: "", label: "" }],
     showIfEnabled: false,
     showIfField: "",
@@ -145,6 +147,28 @@ function FieldEditor({ field, index, total, priorFields, onChange, onRemove, onM
           </div>
         )}
 
+        {field.type === "text" && (
+          <>
+            <div className="df-field">
+              <label>Validation pattern (optional)</label>
+              <input
+                value={field.pattern}
+                onChange={(e) => set({ pattern: e.target.value })}
+                placeholder="e.g. ^\d{5}$"
+              />
+            </div>
+            <div className="df-field">
+              <label>Pattern error message (optional)</label>
+              <input
+                value={field.patternMessage}
+                onChange={(e) => set({ patternMessage: e.target.value })}
+                placeholder="e.g. Must be a 5-digit ZIP code"
+                disabled={!field.pattern.trim()}
+              />
+            </div>
+          </>
+        )}
+
         <label className="cf-required-toggle">
           <input type="checkbox" checked={field.required} onChange={(e) => set({ required: e.target.checked })} />
           Required
@@ -240,6 +264,13 @@ function CreateForm() {
       if (f.type === "select" && f.options.filter((o) => o.value.trim()).length === 0) {
         return `Field ${i + 1}: a dropdown needs at least one option.`;
       }
+      if (f.type === "text" && f.pattern.trim()) {
+        try {
+          new RegExp(f.pattern.trim());
+        } catch {
+          return `Field ${i + 1}: "${f.pattern}" isn't a valid regular expression.`;
+        }
+      }
       if (f.showIfEnabled && (!f.showIfField || f.showIfEquals === "")) {
         return `Field ${i + 1}: finish or disable its conditional visibility.`;
       }
@@ -261,6 +292,10 @@ function CreateForm() {
     const payloadFields = fields.map((f) => {
       const field = { id: f.id.trim(), label: f.label.trim(), type: f.type, required: f.required };
       if (f.placeholder.trim()) field.placeholder = f.placeholder.trim();
+      if (f.type === "text" && f.pattern.trim()) {
+        field.pattern = f.pattern.trim();
+        if (f.patternMessage.trim()) field.patternMessage = f.patternMessage.trim();
+      }
       if (f.type === "select") {
         field.options = f.options
           .filter((o) => o.value.trim())

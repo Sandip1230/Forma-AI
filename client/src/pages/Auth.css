@@ -21,7 +21,7 @@
 .auth-brand-panel__glow {
   position: absolute;
   border-radius: 50%;
-  filter: blur(90px);
+  filter: blur(91px);
   pointer-events: none;
 }
 .auth-brand-panel__glow--a { width: 420px; height: 420px; top: -140px; right: -110px; background: rgba(34, 211, 238, 0.35); }

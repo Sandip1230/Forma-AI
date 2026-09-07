@@ -11,14 +11,14 @@ async function getSchema(req, res) {
 }
 
 async function createSchema(req, res) {
-  const { formId, title, fields } = req.body;
+  const { formId, title, description, fields } = req.body;
   if (!formId || !title) {
     return res.status(400).json({ error: "formId and title are required" });
   }
   const existing = await FormSchema.findOne({ formId });
   if (existing) return res.status(409).json({ error: `Form "${formId}" already exists` });
 
-  const schema = await FormSchema.create({ formId, title, fields: fields || [] });
+  const schema = await FormSchema.create({ formId, title, description: description || undefined, fields: fields || [] });
   res.status(201).json(schema);
 }
 

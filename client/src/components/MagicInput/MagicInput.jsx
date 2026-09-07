@@ -1,19 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { extractFormValues } from "../../services/api";
 import "./MagicInput.css";
 
-function MagicInput({ formId, onExtracted }) {
-  const [text, setText] = useState("");
+// `initialText` is set when a user arrives here having already described
+// their need on the Hub's "find my form" box — extraction runs immediately
+// with that text instead of making them retype it.
+function MagicInput({ formId, onExtracted, initialText }) {
+  const [text, setText] = useState(initialText || "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [open, setOpen] = useState(true);
 
-  const handleExtract = async () => {
-    if (!text.trim()) return;
+  const runExtract = async (value) => {
+    if (!value.trim()) return;
     setLoading(true);
     setError("");
     try {
-      const result = await extractFormValues(formId, text);
+      const result = await extractFormValues(formId, value);
       onExtracted(result);
       setOpen(false);
     } catch (err) {
@@ -22,6 +25,14 @@ function MagicInput({ formId, onExtracted }) {
       setLoading(false);
     }
   };
+
+  const handleExtract = () => runExtract(text);
+
+  useEffect(() => {
+    if (initialText && initialText.trim()) runExtract(initialText);
+    // Only ever auto-run once, right when this form is first opened.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!open) {
     return (

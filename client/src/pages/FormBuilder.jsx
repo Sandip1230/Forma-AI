@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useLocation, Link } from "react-router-dom";
 import { useFormSchema } from "../hooks/useFormSchema";
 import { useDraftSync } from "../hooks/useDraftSync";
 import { useSubmitForm } from "../hooks/useSubmitForm";
@@ -12,6 +12,7 @@ import "./FormBuilder.css";
 
 function FormBuilder() {
   const { formId } = useParams();
+  const location = useLocation();
   const { schema, loading, error } = useFormSchema(formId);
   const draftId = getDraftId(formId);
 
@@ -83,7 +84,7 @@ function FormBuilder() {
               </div>
             )}
 
-            <MagicInput formId={formId} onExtracted={setExtracted} />
+            <MagicInput formId={formId} onExtracted={setExtracted} initialText={location.state?.prefillText} />
 
             <DynamicForm
               schema={schema}

@@ -162,4 +162,57 @@ async function extractFromText(formSchema, userText) {
   return { values, filledFieldIds, lowConfidenceFieldIds };
 }
 
-module.exports = { extractFromText };
+// Distinct from any real formId a user could type into CreateForm (which only
+// allows letters/numbers/hyphens) so it can never collide with an actual form.
+const NO_MATCH = "__no_match__";
+
+// Picks which of several existing form types a free-text description is
+// most likely about — the step that lets a user describe what they need
+// *before* knowing which form to open, instead of Magic Input only being
+// usable after already navigating to a specific form's page.
+async function classifyFormType(text, formSummaries) {
+  if (!process.env.GOOGLE_API_KEY) {
+    const err = new Error("GOOGLE_API_KEY is not configured on the server.");
+    err.status = 503;
+    throw err;
+  }
+
+  const formIds = formSummaries.map((f) => f.formId);
+  const classificationSchema = z.object({
+    formId: z
+      .enum([...formIds, NO_MATCH])
+      .describe(`The formId of the single best-matching form, or "${NO_MATCH}" if none of them plausibly fit.`),
+  });
+
+  const model = new ChatGoogleGenerativeAI({ model: "gemini-3.5-flash-lite", temperature: 0 });
+  const structuredModel = model.withStructuredOutput(classificationSchema, {
+    name: "classify_form_type",
+    method: "functionCalling",
+  });
+
+  const formList = formSummaries
+    .map((f) => `- formId "${f.formId}": ${f.title}${f.description ? ` — ${f.description}` : ""}`)
+    .join("\n");
+
+  const systemPrompt = [
+    "A user described what they need in their own words. Match it to the single form type it's most likely about, out of these available forms:",
+    formList,
+    `Respond with that form's formId. If none of them plausibly relate to what the user described, respond with "${NO_MATCH}" instead of guessing.`,
+  ].join("\n");
+
+  let result;
+  try {
+    result = await structuredModel.invoke([
+      { role: "system", content: systemPrompt },
+      { role: "user", content: text },
+    ]);
+  } catch (err) {
+    throw mapExtractionError(err);
+  }
+
+  if (result.formId === NO_MATCH) return { formId: null };
+  const matched = formSummaries.find((f) => f.formId === result.formId);
+  return { formId: matched.formId, title: matched.title };
+}
+
+module.exports = { extractFromText, classifyFormType };

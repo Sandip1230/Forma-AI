@@ -61,8 +61,12 @@ export function fetchMe() {
   return request("/auth/me");
 }
 
-export function createSchema(formId, title, fields) {
-  return request("/forms", { method: "POST", body: JSON.stringify({ formId, title, fields }) });
+export function createSchema(formId, title, fields, description) {
+  return request("/forms", { method: "POST", body: JSON.stringify({ formId, title, fields, description }) });
+}
+
+export function classifyFormType(text) {
+  return request("/forms/classify", { method: "POST", body: JSON.stringify({ text }) });
 }
 
 export function fetchFormResponses(formId) {

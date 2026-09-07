@@ -231,6 +231,7 @@ function CreateForm() {
   const navigate = useNavigate();
   const [formId, setFormId] = useState("");
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [fields, setFields] = useState([blankField()]);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -309,7 +310,7 @@ function CreateForm() {
     });
 
     try {
-      const schema = await createSchema(formId.trim(), title.trim(), payloadFields);
+      const schema = await createSchema(formId.trim(), title.trim(), payloadFields, description.trim() || undefined);
       navigate(`/forms/${schema.formId}`);
     } catch (err) {
       setError(err.message || "Could not create the form.");
@@ -346,6 +347,16 @@ function CreateForm() {
             <div className="df-field">
               <label htmlFor="title">Title</label>
               <input id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Contact Request" />
+            </div>
+            <div className="df-field cf-form-meta__full">
+              <label htmlFor="description">Description (optional)</label>
+              <textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="What is this form for? Helps AI match a user's free-text description to the right form."
+                rows={2}
+              />
             </div>
           </div>
 

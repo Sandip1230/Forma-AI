@@ -8,6 +8,12 @@
   gap: 16px;
   margin-bottom: 24px;
 }
+.cf-form-meta__full {
+  grid-column: 1 / -1;
+}
+.cf-form-meta__full textarea {
+  resize: vertical;
+}
 
 .cf-fields {
   display: flex;

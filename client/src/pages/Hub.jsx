@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Logo from "../components/Logo";
 import ThemeToggle from "../components/ThemeToggle";
+import SmartIntake from "../components/SmartIntake/SmartIntake";
 import "./Dashboard.css";
 import "./Hub.css";
 
@@ -30,6 +31,8 @@ function Hub() {
           <h1 className="dash-title">Hello {user?.username}</h1>
           <p className="dash-subtitle">Build a new form, or browse everything in the shared store.</p>
         </div>
+
+        <SmartIntake />
 
         <div className="hub-tiles">
           <Link to="/dashboard" className="hub-tile">

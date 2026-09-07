@@ -32,6 +32,10 @@ const formSchemaSchema = new mongoose.Schema(
   {
     formId: { type: String, required: true, unique: true, index: true },
     title: { type: String, required: true },
+    // Used by the auto-classify endpoint to match free text to the right
+    // form when several exist — the title alone is often too short/ambiguous
+    // for that.
+    description: String,
     fields: { type: [fieldSchema], default: [] },
   },
   { timestamps: true }

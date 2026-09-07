@@ -3,7 +3,7 @@ const {
   getSchema, listSchemas, createSchema, submitResponse, getFormResponses,
   getStats, exportResponses, seedDemo, resetDemoData,
 } = require("../controllers/formSchemaController");
-const { extract } = require("../controllers/extractionController");
+const { extract, classify } = require("../controllers/extractionController");
 const { getDraft, saveDraft, deleteDraft } = require("../controllers/draftController");
 const { requireAuth } = require("../middleware/auth");
 
@@ -18,6 +18,7 @@ router.delete("/demo-data", requireAuth, resetDemoData);
 router.get("/", requireAuth, listSchemas);
 router.get("/stats", requireAuth, getStats);
 router.post("/", requireAuth, createSchema);
+router.post("/classify", requireAuth, classify);
 router.get("/:formId/responses", requireAuth, getFormResponses);
 
 // Public — the actual fill experience; no login required to file a claim.

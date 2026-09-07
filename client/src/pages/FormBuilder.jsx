@@ -63,7 +63,7 @@ function FormBuilder() {
 
         {!loading && !error && schema && !submitted && (
           <>
-            <span className="fb-eyebrow">Form ID · {schema.formId}</span>
+            <span className="fb-eyebrow">Form ID · {schema.formId} · v{schema.version || 1}</span>
             <h1 className="fb-title">{schema.title}</h1>
             <p className="fb-subtitle">All fields marked * are required.</p>
             {savingDraft && <span className="fb-draft-status">Saving draft…</span>}

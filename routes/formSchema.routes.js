@@ -1,6 +1,6 @@
 const express = require("express");
 const {
-  getSchema, listSchemas, createSchema, submitResponse, getFormResponses,
+  getSchema, listSchemas, createSchema, updateSchema, getSchemaVersions, submitResponse, getFormResponses,
   getStats, exportResponses, seedDemo, resetDemoData,
 } = require("../controllers/formSchemaController");
 const { extract, classify } = require("../controllers/extractionController");
@@ -19,6 +19,8 @@ router.get("/", requireAuth, listSchemas);
 router.get("/stats", requireAuth, getStats);
 router.post("/", requireAuth, createSchema);
 router.post("/classify", requireAuth, classify);
+router.put("/:formId", requireAuth, updateSchema);
+router.get("/:formId/versions", requireAuth, getSchemaVersions);
 router.get("/:formId/responses", requireAuth, getFormResponses);
 
 // Public — the actual fill experience; no login required to file a claim.

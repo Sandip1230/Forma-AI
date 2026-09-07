@@ -2,6 +2,23 @@
   max-width: 720px;
 }
 
+.cf-version-badge {
+  margin-left: 8px;
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.cf-loading {
+  padding: 32px 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13.5px;
+}
+
 .cf-form-meta {
   display: grid;
   grid-template-columns: 1fr 1fr;

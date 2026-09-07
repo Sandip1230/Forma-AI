@@ -37,6 +37,11 @@ const formSchemaSchema = new mongoose.Schema(
     // for that.
     description: String,
     fields: { type: [fieldSchema], default: [] },
+    // Bumped on every edit (see updateSchema) — the previous title/
+    // description/fields are snapshotted into FormSchemaVersion first, so
+    // existing submissions can still be traced back to the exact shape they
+    // were filled against.
+    version: { type: Number, default: 1 },
   },
   { timestamps: true }
 );

@@ -41,6 +41,14 @@ function App() {
         }
       />
       <Route
+        path="/forms/:formId/edit"
+        element={
+          <RequireAuth>
+            <CreateForm />
+          </RequireAuth>
+        }
+      />
+      <Route
         path="/dashboard"
         element={
           <RequireAuth>

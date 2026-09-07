@@ -180,6 +180,7 @@
   background: var(--bg-card-raised); color: var(--text-muted);
 }
 .forms-table__badge--active { background: var(--success-soft); color: var(--success); }
+.forms-table__badge--version { background: var(--accent-soft); color: var(--accent); }
 .forms-table__open {
   display: inline-flex; align-items: center; gap: 4px;
   font-size: 12px; font-weight: 700; color: var(--accent);

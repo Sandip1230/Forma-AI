@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { createSchema } from "../services/api";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import { createSchema, updateSchema, fetchFormSchema } from "../services/api";
 import Logo from "../components/Logo";
 import "./FormBuilder.css";
 import "./CreateForm.css";
@@ -52,6 +52,27 @@ function coerceEquals(value, parentType) {
   if (parentType === "checkbox") return value === "true";
   if (parentType === "number") return Number(value);
   return value;
+}
+
+// Reverses the payload shape a fetched schema comes back in into the
+// builder's own field state, so an existing form can be loaded into the same
+// editor used to create one.
+function fieldToBuilderState(field) {
+  return {
+    _key: newFieldKey(),
+    id: field.id,
+    idTouched: true,
+    label: field.label,
+    type: field.type,
+    required: !!field.required,
+    placeholder: field.placeholder || "",
+    pattern: field.pattern || "",
+    patternMessage: field.patternMessage || "",
+    options: field.options && field.options.length > 0 ? field.options.map((o) => ({ value: o.value, label: o.label })) : [{ value: "", label: "" }],
+    showIfEnabled: !!field.showIf,
+    showIfField: field.showIf?.field || "",
+    showIfEquals: field.showIf ? String(field.showIf.equals) : "",
+  };
 }
 
 function OptionsEditor({ options, onChange }) {
@@ -229,12 +250,32 @@ function FieldEditor({ field, index, total, priorFields, onChange, onRemove, onM
 
 function CreateForm() {
   const navigate = useNavigate();
+  const { formId: routeFormId } = useParams();
+  const isEditMode = Boolean(routeFormId);
+
   const [formId, setFormId] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [fields, setFields] = useState([blankField()]);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [currentVersion, setCurrentVersion] = useState(null);
+  const [loadingExisting, setLoadingExisting] = useState(isEditMode);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    if (!isEditMode) return;
+    fetchFormSchema(routeFormId)
+      .then((schema) => {
+        setFormId(schema.formId);
+        setTitle(schema.title);
+        setDescription(schema.description || "");
+        setCurrentVersion(schema.version || 1);
+        setFields(schema.fields.length > 0 ? schema.fields.map(fieldToBuilderState) : [blankField()]);
+      })
+      .catch((err) => setLoadError(err.message || "Could not load this form."))
+      .finally(() => setLoadingExisting(false));
+  }, [isEditMode, routeFormId]);
 
   const updateField = (key, patch) => setFields((fs) => fs.map((f) => (f._key === key ? { ...f, ...patch } : f)));
   const removeField = (key) => setFields((fs) => fs.filter((f) => f._key !== key));
@@ -310,10 +351,12 @@ function CreateForm() {
     });
 
     try {
-      const schema = await createSchema(formId.trim(), title.trim(), payloadFields, description.trim() || undefined);
+      const schema = isEditMode
+        ? await updateSchema(formId.trim(), title.trim(), payloadFields, description.trim() || undefined)
+        : await createSchema(formId.trim(), title.trim(), payloadFields, description.trim() || undefined);
       navigate(`/forms/${schema.formId}`);
     } catch (err) {
-      setError(err.message || "Could not create the form.");
+      setError(err.message || `Could not ${isEditMode ? "save" : "create"} the form.`);
     } finally {
       setSubmitting(false);
     }
@@ -332,17 +375,34 @@ function CreateForm() {
       </div>
 
       <div className="fb-card cf-card">
-        <span className="fb-eyebrow">Create Form</span>
-        <h1 className="fb-title">Design a new form</h1>
-        <p className="fb-subtitle">Add fields, set their type, and optionally make one depend on another.</p>
+        <span className="fb-eyebrow">
+          {isEditMode ? "Edit Form" : "Create Form"}
+          {isEditMode && currentVersion && <span className="cf-version-badge">v{currentVersion}</span>}
+        </span>
+        <h1 className="fb-title">{isEditMode ? "Edit this form" : "Design a new form"}</h1>
+        <p className="fb-subtitle">
+          {isEditMode
+            ? "Saving creates a new version — submissions already on file keep the version they were filled under."
+            : "Add fields, set their type, and optionally make one depend on another."}
+        </p>
 
         {error && <div className="fb-error">{error}</div>}
+        {isEditMode && loadError && <div className="fb-error">{loadError}</div>}
 
+        {isEditMode && loadingExisting ? (
+          <div className="cf-loading">Loading form…</div>
+        ) : (
         <form onSubmit={handleSubmit}>
           <div className="cf-form-meta">
             <div className="df-field">
               <label htmlFor="formId">Form ID</label>
-              <input id="formId" value={formId} onChange={(e) => setFormId(e.target.value)} placeholder="e.g. contact-request" />
+              <input
+                id="formId"
+                value={formId}
+                onChange={(e) => setFormId(e.target.value)}
+                placeholder="e.g. contact-request"
+                disabled={isEditMode}
+              />
             </div>
             <div className="df-field">
               <label htmlFor="title">Title</label>
@@ -381,9 +441,10 @@ function CreateForm() {
           </button>
 
           <button type="submit" className="df-submit cf-submit" disabled={submitting}>
-            {submitting ? "Creating…" : "Create form"}
+            {isEditMode ? (submitting ? "Saving…" : "Save changes") : (submitting ? "Creating…" : "Create form")}
           </button>
         </form>
+        )}
       </div>
     </div>
   );

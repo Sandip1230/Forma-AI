@@ -28,6 +28,7 @@ function SubmissionsPanel({ formId }) {
         <thead>
           <tr>
             <th>Submitted</th>
+            <th title="Which version of the form this was filled against">Schema v</th>
             {columns.map((c) => (
               <th key={c}>{c}</th>
             ))}
@@ -37,6 +38,7 @@ function SubmissionsPanel({ formId }) {
           {responses.map((r) => (
             <tr key={r.id}>
               <td>{new Date(r.submittedAt).toLocaleString()}</td>
+              <td>v{r.schemaVersion || 1}</td>
               {columns.map((c) => (
                 <td key={c}>{String(r.values?.[c] ?? "")}</td>
               ))}
@@ -109,7 +111,11 @@ function AllForms() {
                   </div>
                   <div className="yf-card__meta">
                     <span>{f.fieldCount} field{f.fieldCount === 1 ? "" : "s"}</span>
+                    <span className="forms-table__badge forms-table__badge--version">v{f.version || 1}</span>
                     <span className="forms-table__badge forms-table__badge--active">{f.submissionCount} submission{f.submissionCount === 1 ? "" : "s"}</span>
+                    <Link to={`/forms/${f.formId}/edit`} className="forms-table__open" onClick={(e) => e.stopPropagation()}>
+                      Edit
+                    </Link>
                     <Link to={`/forms/${f.formId}`} className="forms-table__open" onClick={(e) => e.stopPropagation()}>
                       Open
                     </Link>

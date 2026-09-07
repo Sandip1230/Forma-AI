@@ -65,6 +65,14 @@ export function createSchema(formId, title, fields, description) {
   return request("/forms", { method: "POST", body: JSON.stringify({ formId, title, fields, description }) });
 }
 
+export function updateSchema(formId, title, fields, description) {
+  return request(`/forms/${formId}`, { method: "PUT", body: JSON.stringify({ title, fields, description }) });
+}
+
+export function fetchSchemaVersions(formId) {
+  return request(`/forms/${formId}/versions`);
+}
+
 export function classifyFormType(text) {
   return request("/forms/classify", { method: "POST", body: JSON.stringify({ text }) });
 }

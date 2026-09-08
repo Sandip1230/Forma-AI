@@ -5,6 +5,8 @@ import ThemeToggle from "../components/ThemeToggle";
 import SettingsBar from "../components/SettingsBar";
 import StatCard from "../components/StatCard";
 import FormsTable from "../components/FormsTable";
+import SubmissionsByFormChart from "../components/Analytics/SubmissionsByFormChart";
+import SubmissionsTimelineChart from "../components/Analytics/SubmissionsTimelineChart";
 import { useAuth } from "../context/AuthContext";
 import { fetchForms, fetchDashboardStats } from "../services/api";
 import "./Dashboard.css";
@@ -14,7 +16,7 @@ function Dashboard() {
   const { user, logout } = useAuth();
 
   const [forms, setForms] = useState([]);
-  const [stats, setStats] = useState({ totalForms: 0, totalSubmissions: 0, submissionsToday: 0 });
+  const [stats, setStats] = useState({ totalForms: 0, totalSubmissions: 0, submissionsToday: 0, dailySubmissions: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [apiOnline, setApiOnline] = useState(true);
@@ -93,6 +95,13 @@ function Dashboard() {
             icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" /></svg>}
           />
         </div>
+
+        {!loading && (stats.totalSubmissions > 0 || forms.length > 0) && (
+          <div className="analytics-grid">
+            <SubmissionsByFormChart forms={forms} />
+            <SubmissionsTimelineChart dailySubmissions={stats.dailySubmissions} />
+          </div>
+        )}
 
         <SettingsBar onDataChanged={load} />
 

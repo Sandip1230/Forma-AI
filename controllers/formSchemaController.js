@@ -144,6 +144,8 @@ async function getFormResponses(req, res) {
   res.json(responses.map((r) => ({ id: r._id, values: r.values, submittedAt: r.createdAt, schemaVersion: r.schemaVersion || 1 })));
 }
 
+const DAILY_TREND_DAYS = 14;
+
 async function getStats(req, res) {
   const totalForms = await FormSchema.countDocuments();
   const totalSubmissions = await FormResponse.countDocuments();
@@ -152,7 +154,25 @@ async function getStats(req, res) {
   startOfDay.setHours(0, 0, 0, 0);
   const submissionsToday = await FormResponse.countDocuments({ createdAt: { $gte: startOfDay } });
 
-  res.json({ totalForms, totalSubmissions, submissionsToday });
+  const rangeStart = new Date(startOfDay);
+  rangeStart.setDate(rangeStart.getDate() - (DAILY_TREND_DAYS - 1));
+  const dailyAgg = await FormResponse.aggregate([
+    { $match: { createdAt: { $gte: rangeStart } } },
+    { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, count: { $sum: 1 } } },
+  ]);
+  const countByDate = Object.fromEntries(dailyAgg.map((d) => [d._id, d.count]));
+
+  // Always DAILY_TREND_DAYS entries, zero-filled — the chart doesn't have to
+  // know which days had no submissions at all.
+  const dailySubmissions = [];
+  for (let i = 0; i < DAILY_TREND_DAYS; i++) {
+    const d = new Date(rangeStart);
+    d.setDate(d.getDate() + i);
+    const date = d.toISOString().slice(0, 10);
+    dailySubmissions.push({ date, count: countByDate[date] || 0 });
+  }
+
+  res.json({ totalForms, totalSubmissions, submissionsToday, dailySubmissions });
 }
 
 function toCsvValue(val) {

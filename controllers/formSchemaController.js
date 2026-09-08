@@ -117,13 +117,14 @@ async function submitResponse(req, res) {
 }
 
 async function listSchemas(req, res) {
-  const schemas = await FormSchema.find().select("formId title fields createdAt version").lean();
+  const schemas = await FormSchema.find().select("formId title description fields createdAt version").lean();
   const counts = await FormResponse.aggregate([{ $group: { _id: "$formId", count: { $sum: 1 } } }]);
   const countByFormId = Object.fromEntries(counts.map((c) => [c._id, c.count]));
 
   const withStats = schemas.map((s) => ({
     formId: s.formId,
     title: s.title,
+    description: s.description || "",
     fieldCount: s.fields.length,
     submissionCount: countByFormId[s.formId] || 0,
     createdAt: s.createdAt,

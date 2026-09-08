@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { fetchForms, fetchFormResponses } from "../services/api";
 import Logo from "../components/Logo";
@@ -55,6 +55,21 @@ function AllForms() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [openFormId, setOpenFormId] = useState(null);
+  const [query, setQuery] = useState("");
+
+  // Client-side is plenty fast even at "hundreds of form types" scale, and
+  // avoids a separate search endpoint for what's really just filtering a
+  // list that's already fully loaded.
+  const filteredForms = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return forms;
+    return forms.filter(
+      (f) =>
+        f.title.toLowerCase().includes(q) ||
+        f.formId.toLowerCase().includes(q) ||
+        (f.description || "").toLowerCase().includes(q)
+    );
+  }, [forms, query]);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -94,20 +109,33 @@ function AllForms() {
 
         {error && <div className="dash-error">{error}</div>}
 
+        {!loading && forms.length > 0 && (
+          <input
+            className="yf-search"
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={`Search ${forms.length} form${forms.length === 1 ? "" : "s"} by name, ID, or description…`}
+          />
+        )}
+
         {loading ? (
           <div className="forms-table__empty">Loading…</div>
         ) : forms.length === 0 ? (
           <div className="forms-table__empty">
             No forms yet. <Link to="/forms/new">Create one</Link>.
           </div>
+        ) : filteredForms.length === 0 ? (
+          <div className="forms-table__empty">No forms match "{query}".</div>
         ) : (
           <div className="yf-list">
-            {forms.map((f) => (
+            {filteredForms.map((f) => (
               <div className="yf-card" key={f.formId}>
                 <div className="yf-card__row" onClick={() => setOpenFormId(openFormId === f.formId ? null : f.formId)}>
                   <div>
                     <div className="yf-card__title">{f.title}</div>
                     <code className="forms-table__id">{f.formId}</code>
+                    {f.description && <p className="yf-card__description">{f.description}</p>}
                   </div>
                   <div className="yf-card__meta">
                     <span>{f.fieldCount} field{f.fieldCount === 1 ? "" : "s"}</span>

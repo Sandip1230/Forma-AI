@@ -1,3 +1,25 @@
+.yf-search {
+  width: 100%;
+  padding: 11px 14px;
+  margin-bottom: 18px;
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 13.5px;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  outline: none;
+  transition: border-color var(--duration-fast) var(--ease), box-shadow var(--duration-fast) var(--ease);
+}
+.yf-search:focus { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+
+.yf-card__description {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  max-width: 46ch;
+}
+
 .yf-list {
   display: flex;
   flex-direction: column;

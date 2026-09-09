@@ -29,21 +29,27 @@ function SubmissionsPanel({ formId }) {
           <tr>
             <th>Submitted</th>
             <th title="Which version of the form this was filled against">Schema v</th>
+            <th title="Of the fields AI filled in, how many the user kept unchanged">AI kept</th>
             {columns.map((c) => (
               <th key={c}>{c}</th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {responses.map((r) => (
-            <tr key={r.id}>
-              <td>{new Date(r.submittedAt).toLocaleString()}</td>
-              <td>v{r.schemaVersion || 1}</td>
-              {columns.map((c) => (
-                <td key={c}>{String(r.values?.[c] ?? "")}</td>
-              ))}
-            </tr>
-          ))}
+          {responses.map((r) => {
+            const outcomes = r.aiFieldOutcomes || [];
+            const keptCount = outcomes.filter((o) => o.kept).length;
+            return (
+              <tr key={r.id}>
+                <td>{new Date(r.submittedAt).toLocaleString()}</td>
+                <td>v{r.schemaVersion || 1}</td>
+                <td>{outcomes.length > 0 ? `${keptCount}/${outcomes.length}` : "—"}</td>
+                {columns.map((c) => (
+                  <td key={c}>{String(r.values?.[c] ?? "")}</td>
+                ))}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

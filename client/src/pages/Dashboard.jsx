@@ -16,7 +16,10 @@ function Dashboard() {
   const { user, logout } = useAuth();
 
   const [forms, setForms] = useState([]);
-  const [stats, setStats] = useState({ totalForms: 0, totalSubmissions: 0, submissionsToday: 0, dailySubmissions: [] });
+  const [stats, setStats] = useState({
+    totalForms: 0, totalSubmissions: 0, submissionsToday: 0, dailySubmissions: [],
+    aiAccuracy: { totalFilled: 0, totalKept: 0 },
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [apiOnline, setApiOnline] = useState(true);
@@ -94,6 +97,13 @@ function Dashboard() {
             label="Submitted Today" value={loading ? "…" : stats.submissionsToday} tone="blue"
             icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" /></svg>}
           />
+          {!loading && stats.aiAccuracy.totalFilled > 0 && (
+            <StatCard
+              label="AI Accuracy" tone="accent"
+              value={`${Math.round((stats.aiAccuracy.totalKept / stats.aiAccuracy.totalFilled) * 100)}%`}
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3l2.4 5.8L20 11l-5.6 2.2L12 19l-2.4-5.8L4 11l5.6-2.2L12 3z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" /></svg>}
+            />
+          )}
         </div>
 
         {!loading && (stats.totalSubmissions > 0 || forms.length > 0) && (

@@ -91,7 +91,7 @@ function resolveVisibility(fields, values) {
 
 async function submitResponse(req, res) {
   const { formId } = req.params;
-  const { __draftId, ...values } = req.body;
+  const { __draftId, __aiOriginalValues, ...values } = req.body;
   const schema = await FormSchema.findOne({ formId }).lean();
   if (!schema) return res.status(404).json({ error: "Form not found" });
 
@@ -104,10 +104,23 @@ async function submitResponse(req, res) {
     return res.status(400).json({ error: `Missing required field(s): ${missing.join(", ")}` });
   }
 
+  // __aiOriginalValues carries what the AI actually filled in (only for
+  // fields it filled) so accuracy can be measured server-side, rather than
+  // trusting a pre-computed verdict from the client. Compared as strings
+  // since a submitted number/date field arrives as a string from the form
+  // while the AI's original value is typed (e.g. a real JS number).
+  let aiFieldOutcomes;
+  if (__aiOriginalValues && typeof __aiOriginalValues === "object") {
+    aiFieldOutcomes = Object.entries(__aiOriginalValues).map(([fieldId, originalValue]) => ({
+      fieldId,
+      kept: String(values[fieldId] ?? "").trim() === String(originalValue ?? "").trim(),
+    }));
+  }
+
   // __draftId is plumbing for the draft-cleanup step below — it isn't a real
   // form field, so it's kept out of the stored values (was previously
   // leaking in as a stray column in every export/response record).
-  const response = await FormResponse.create({ formId, values, schemaVersion: schema.version });
+  const response = await FormResponse.create({ formId, values, schemaVersion: schema.version, aiFieldOutcomes });
 
   if (__draftId) {
     await FormDraft.deleteOne({ formId, draftId: __draftId }).catch(() => {});
@@ -141,7 +154,15 @@ async function getFormResponses(req, res) {
   if (!schema) return res.status(404).json({ error: "Form not found" });
 
   const responses = await FormResponse.find({ formId }).sort({ createdAt: -1 }).lean();
-  res.json(responses.map((r) => ({ id: r._id, values: r.values, submittedAt: r.createdAt, schemaVersion: r.schemaVersion || 1 })));
+  res.json(
+    responses.map((r) => ({
+      id: r._id,
+      values: r.values,
+      submittedAt: r.createdAt,
+      schemaVersion: r.schemaVersion || 1,
+      aiFieldOutcomes: r.aiFieldOutcomes || [],
+    }))
+  );
 }
 
 const DAILY_TREND_DAYS = 14;
@@ -172,7 +193,16 @@ async function getStats(req, res) {
     dailySubmissions.push({ date, count: countByDate[date] || 0 });
   }
 
-  res.json({ totalForms, totalSubmissions, submissionsToday, dailySubmissions });
+  const aiAgg = await FormResponse.aggregate([
+    { $match: { aiFieldOutcomes: { $exists: true, $not: { $size: 0 } } } },
+    { $unwind: "$aiFieldOutcomes" },
+    { $group: { _id: null, totalFilled: { $sum: 1 }, totalKept: { $sum: { $cond: ["$aiFieldOutcomes.kept", 1, 0] } } } },
+  ]);
+  const aiAccuracy = aiAgg[0]
+    ? { totalFilled: aiAgg[0].totalFilled, totalKept: aiAgg[0].totalKept }
+    : { totalFilled: 0, totalKept: 0 };
+
+  res.json({ totalForms, totalSubmissions, submissionsToday, dailySubmissions, aiAccuracy });
 }
 
 function toCsvValue(val) {

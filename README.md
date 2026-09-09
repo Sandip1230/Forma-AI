@@ -1,7 +1,8 @@
 # Forma AI: AI-Augmented Dynamic Form Engine
 
 ## 📖 Overview
-Forma AI tackles the challenge of managing massive, branching forms in large organizations like Insurance and Healthcare[cite: 1]. Building these dynamically in React and managing the complex validation state in MongoDB is notoriously difficult, and adding AI to interpret unstructured user input makes it exponentially harder[cite: 1]. This project modernizes legacy data entry by creating a seamless, AI-augmented user experience[cite: 1]. 
+Forma AI tackles the challenge of managing massive, branching forms in large organizations like Insurance and Healthcare[cite: 1]. Building these dynamically in React and managing the complex validation state in MongoDB is notoriously difficult, and adding AI to interpret unstructured user input makes it exponentially harder[cite: 1]. 
+This project modernizes legacy data entry by creating a seamless, AI-augmented user experience[cite: 1]. 
 
 
 ## 🚀 Use Case
@@ -17,7 +18,7 @@ This application utilizes a highly scalable architecture for managing unstructur
 *   Backend & AI Pipeline (Node.js & LangChain):** An LLM Extraction API uses an LLM (like GPT-4o or a local model) to parse unstructured user text and map it to the strict JSON schema required by the form[cite: 1].
 *   Database (MongoDB):** A Schema Store stores the rules, validation logic, and branching paths for hundreds of different form types[cite: 1].
 
-## ⚙️ Technical Highlights
+##  Technical Highlights
 *   Advanced React Patterns:** Heavy use of custom hooks, complex state management, and Dynamic UI generation[cite: 1].
 *   Beyond CRUD:** Utilizes AI pipelines for unstructured data parsing[cite: 1].
 *   Scalable Node.js:** Structures Express APIs using enterprise patterns rather than monolithic, tightly coupled routes[cite: 1].

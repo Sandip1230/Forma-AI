@@ -12,6 +12,7 @@ const FIELD_TYPES = [
   { value: "checkbox", label: "Checkbox" },
   { value: "date", label: "Date" },
   { value: "number", label: "Number" },
+  { value: "email", label: "Email" },
 ];
 
 // Turns a label like "What happened?" into a usable field id ("whatHappened")

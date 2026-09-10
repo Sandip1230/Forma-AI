@@ -4,6 +4,7 @@ const FormResponse = require("../models/FormResponse");
 const FormDraft = require("../models/FormDraft");
 const exampleFormSchema = require("../lib/exampleFormSchema");
 const { asyncHandler } = require("../middleware/errorHandler");
+const { sendSubmissionConfirmationEmail } = require("../services/emailService");
 
 async function getSchema(req, res) {
   const schema = await FormSchema.findOne({ formId: req.params.formId }).lean();
@@ -124,6 +125,17 @@ async function submitResponse(req, res) {
 
   if (__draftId) {
     await FormDraft.deleteOne({ formId, draftId: __draftId }).catch(() => {});
+  }
+
+  // Best-effort: the submission is already saved, so a flaky mail server or
+  // missing SMTP config should never fail (or even slow down) the response
+  // the submitter actually needs.
+  const emailField = schema.fields.find((f) => f.type === "email");
+  const recipientEmail = emailField && values[emailField.id];
+  if (recipientEmail) {
+    sendSubmissionConfirmationEmail(recipientEmail, schema.title, response._id).catch((err) => {
+      console.error("Submission confirmation email failed:", err.message);
+    });
   }
 
   res.status(201).json({ id: response._id, submittedAt: response.createdAt });

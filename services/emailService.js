@@ -19,7 +19,7 @@ const COPY = {
   },
 };
 
-async function sendOtpEmail(toEmail, code, purpose) {
+function getTransporter() {
   const { user, pass } = getCredentials();
   // Gmail app passwords are always exactly 16 characters. This catches an
   // unfilled placeholder (or an accidentally-pasted regular account
@@ -32,9 +32,12 @@ async function sendOtpEmail(toEmail, code, purpose) {
     err.status = 503;
     throw err;
   }
+  return { transporter: nodemailer.createTransport({ service: "gmail", auth: { user, pass } }), user };
+}
 
+async function sendOtpEmail(toEmail, code, purpose) {
+  const { transporter, user } = getTransporter();
   const { subject, line } = COPY[purpose];
-  const transporter = nodemailer.createTransport({ service: "gmail", auth: { user, pass } });
   await transporter.sendMail({
     from: `"Forma AI" <${user}>`,
     to: toEmail,
@@ -44,4 +47,15 @@ async function sendOtpEmail(toEmail, code, purpose) {
   });
 }
 
-module.exports = { sendOtpEmail };
+async function sendSubmissionConfirmationEmail(toEmail, formTitle, submissionId) {
+  const { transporter, user } = getTransporter();
+  await transporter.sendMail({
+    from: `"Forma AI" <${user}>`,
+    to: toEmail,
+    subject: `We received your "${formTitle}" submission`,
+    text: `Thanks — we received your "${formTitle}" submission. Reference: ${submissionId}.`,
+    html: `<p>Thanks — we received your <strong>${formTitle}</strong> submission.</p><p style="color:#626a85;font-size:13px;">Reference: ${submissionId}</p>`,
+  });
+}
+
+module.exports = { sendOtpEmail, sendSubmissionConfirmationEmail };

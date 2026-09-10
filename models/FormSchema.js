@@ -12,7 +12,7 @@ const fieldSchema = new mongoose.Schema(
     type: {
       type: String,
       required: true,
-      enum: ["text", "textarea", "select", "checkbox", "date", "number"],
+      enum: ["text", "textarea", "select", "checkbox", "date", "number", "email"],
     },
     required: { type: Boolean, default: false },
     placeholder: String,

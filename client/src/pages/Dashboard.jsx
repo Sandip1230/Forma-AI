@@ -8,7 +8,7 @@ import FormsTable from "../components/FormsTable";
 import SubmissionsByFormChart from "../components/Analytics/SubmissionsByFormChart";
 import SubmissionsTimelineChart from "../components/Analytics/SubmissionsTimelineChart";
 import { useAuth } from "../context/AuthContext";
-import { fetchForms, fetchDashboardStats } from "../services/api";
+import { fetchForms, fetchDashboardStats, subscribeToSubmissionEvents } from "../services/api";
 import "./Dashboard.css";
 import "./Hub.css";
 
@@ -23,9 +23,14 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [apiOnline, setApiOnline] = useState(true);
+  const [liveConnected, setLiveConnected] = useState(false);
+  const [liveNotice, setLiveNotice] = useState(null);
 
-  const load = useCallback(() => {
-    setLoading(true);
+  // `quiet` skips the loading flip — used for the SSE-triggered refetch
+  // below, so a live update refreshes the numbers in place instead of
+  // flashing the whole dashboard back to its loading state.
+  const load = useCallback((opts = {}) => {
+    if (!opts.quiet) setLoading(true);
     setError("");
     Promise.all([fetchForms(), fetchDashboardStats()])
       .then(([formsData, statsData]) => {
@@ -37,12 +42,35 @@ function Dashboard() {
         setError(err.message || "Could not reach the API.");
         setApiOnline(false);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!opts.quiet) setLoading(false);
+      });
   }, []);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  // Live updates: any submission anywhere (by any user, on any form) pushes
+  // a server-sent event, which quietly refreshes the numbers and surfaces a
+  // brief toast — no polling, no manual refresh needed to see new activity.
+  useEffect(() => {
+    const source = subscribeToSubmissionEvents();
+    source.onopen = () => setLiveConnected(true);
+    source.onerror = () => setLiveConnected(false);
+    source.addEventListener("submission", (e) => {
+      const { formTitle } = JSON.parse(e.data);
+      setLiveNotice(`New submission: ${formTitle}`);
+      load({ quiet: true });
+    });
+    return () => source.close();
+  }, [load]);
+
+  useEffect(() => {
+    if (!liveNotice) return;
+    const timer = setTimeout(() => setLiveNotice(null), 4000);
+    return () => clearTimeout(timer);
+  }, [liveNotice]);
 
   return (
     <div className="dash">
@@ -65,6 +93,10 @@ function Dashboard() {
             <span className={`dash-api-status__dot ${apiOnline ? "" : "dash-api-status__dot--off"}`} />
             {apiOnline ? "API Online" : "API Unreachable"}
           </span>
+          <span className="dash-api-status" title="Live updates connection">
+            <span className={`dash-api-status__dot ${liveConnected ? "dash-api-status__dot--live" : "dash-api-status__dot--off"}`} />
+            {liveConnected ? "Live" : "Reconnecting…"}
+          </span>
           <Link to="/" className="hub-admin-link">
             ← Back
           </Link>
@@ -83,6 +115,13 @@ function Dashboard() {
         </div>
 
         {error && <div className="dash-error">{error}</div>}
+
+        {liveNotice && (
+          <div className="dash-live-toast" role="status">
+            <span className="dash-live-toast__dot" />
+            {liveNotice}
+          </div>
+        )}
 
         <div className="dash-stats">
           <StatCard

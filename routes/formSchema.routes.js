@@ -5,6 +5,7 @@ const {
 } = require("../controllers/formSchemaController");
 const { extract, classify } = require("../controllers/extractionController");
 const { getDraft, saveDraft, deleteDraft } = require("../controllers/draftController");
+const { streamEvents } = require("../controllers/eventsController");
 const { requireAuth } = require("../middleware/auth");
 
 const router = express.Router();
@@ -17,6 +18,9 @@ router.post("/seed-demo", requireAuth, seedDemo);
 router.delete("/demo-data", requireAuth, resetDemoData);
 router.get("/", requireAuth, listSchemas);
 router.get("/stats", requireAuth, getStats);
+// Must be registered before GET /:formId below, or a request for this exact
+// path would match that route instead ("events" read as a formId).
+router.get("/events", requireAuth, streamEvents);
 router.post("/", requireAuth, createSchema);
 router.post("/classify", requireAuth, classify);
 router.put("/:formId", requireAuth, updateSchema);

@@ -107,6 +107,12 @@ export function fetchDashboardStats() {
   return request("/forms/stats");
 }
 
+// EventSource isn't fetch-based, so it can't go through request() — this
+// just centralizes the same base-URL logic the rest of the module uses.
+export function subscribeToSubmissionEvents() {
+  return new EventSource(`${API_BASE_URL}/forms/events`, { withCredentials: true });
+}
+
 export async function checkHealth() {
   const healthUrl = API_BASE_URL.replace(/\/api$/, "/health");
   const start = performance.now();

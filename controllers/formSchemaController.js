@@ -5,6 +5,7 @@ const FormDraft = require("../models/FormDraft");
 const exampleFormSchema = require("../lib/exampleFormSchema");
 const { asyncHandler } = require("../middleware/errorHandler");
 const { sendSubmissionConfirmationEmail } = require("../services/emailService");
+const submissionEvents = require("../events/submissionEvents");
 
 async function getSchema(req, res) {
   const schema = await FormSchema.findOne({ formId: req.params.formId }).lean();
@@ -126,6 +127,8 @@ async function submitResponse(req, res) {
   if (__draftId) {
     await FormDraft.deleteOne({ formId, draftId: __draftId }).catch(() => {});
   }
+
+  submissionEvents.emit("submission", { formId, formTitle: schema.title, submittedAt: response.createdAt });
 
   // Best-effort: the submission is already saved, so a flaky mail server or
   // missing SMTP config should never fail (or even slow down) the response

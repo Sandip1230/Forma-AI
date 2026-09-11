@@ -25,7 +25,7 @@ This application utilizes a highly scalable architecture for managing unstructur
 *   Complex Data Modeling:** Designs MongoDB schemas that handle deeply nested JSON trees, proving NoSQL mastery[cite: 1].
 
 
-## Setup
+                                                    Setup
 
 ### 1. Navigate to the project root
 Wherever you cloned the repo — it should contain `server.js`, `models/`, `routes/`, and `client/` directly.

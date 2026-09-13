@@ -14,10 +14,10 @@ Instead of filling out dozens of strict dropdowns, users can file complex insura
 This application utilizes a highly scalable architecture for managing unstructured data and complex business rules[cite: 1]:
 
 
-*   Frontend (React & React Hook Form):** A Dynamic Form Renderer capable of generating complex, nested UIs dynamically entirely from a backend JSON schema[cite: 1].
-*   State Management (Redux / Zustand):** Manages the complex, deeply nested state of the form as the user interacts with it[cite: 1].
-*   Backend & AI Pipeline (Node.js & LangChain):** An LLM Extraction API uses an LLM (like GPT-4o or a local model) to parse unstructured user text and map it to the strict JSON schema required by the form[cite: 1].
-*   Database (MongoDB):** A Schema Store stores the rules, validation logic, and branching paths for hundreds of different form types[cite: 1].
+*   `Frontend` (React & React Hook Form):** A Dynamic Form Renderer capable of generating complex, nested UIs dynamically entirely from a backend JSON schema[cite: 1].
+*   `State Management (Redux / Zustand)`:** Manages the complex, deeply nested state of the form as the user interacts with it[cite: 1].
+*   `Backend & AI Pipeline (Node.js & LangChain)`:** An LLM Extraction API uses an LLM (like GPT-4o or a local model) to parse unstructured user text and map it to the strict JSON schema required by the form[cite: 1].
+*   `Database (MongoDB)`:** A Schema Store stores the rules, validation logic, and branching paths for hundreds of different form types[cite: 1].
 
 ##  Technical Highlights
 *   Advanced React Patterns:** Heavy use of custom hooks, complex state management, and Dynamic UI generation[cite: 1].

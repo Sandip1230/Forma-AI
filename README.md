@@ -2,6 +2,7 @@
 
 ## 📖 Overview
 Forma AI tackles the challenge of managing massive, branching forms in large organizations like Insurance and Healthcare[cite: 1]. Building these dynamically in React and managing the complex validation state in MongoDB is notoriously difficult, and adding AI to interpret unstructured user input makes it exponentially harder[cite: 1]. 
+
 This project modernizes legacy data entry by creating a seamless, AI-augmented user experience[cite: 1]. 
 
 

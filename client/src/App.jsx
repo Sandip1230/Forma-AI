@@ -7,6 +7,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Hub from "./pages/Hub";
 import AllForms from "./pages/AllForms";
 import CreateForm from "./pages/CreateForm";
+import NotFound from "./pages/NotFound";
 import RequireAuth from "./components/RequireAuth";
 
 function App() {
@@ -59,6 +60,8 @@ function App() {
 
       {/* Public — no login required to file a claim. */}
       <Route path="/forms/:formId" element={<FormBuilder />} />
+
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

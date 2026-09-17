@@ -1,17 +1,20 @@
                                          Forma AI: AI-Augmented Dynamic Form Engine
 
 ## 📖 Overview
+
 Forma AI tackles the challenge of managing massive, branching forms in large organizations like Insurance and Healthcare[cite: 1]. Building these dynamically in React and managing the complex validation state in MongoDB is notoriously difficult, and adding AI to interpret unstructured user input makes it exponentially harder[cite: 1]. 
 
 This project modernizes legacy data entry by creating a seamless, AI-augmented user experience[cite: 1]. 
 
 
 ## 🚀 Use Case
+
 Instead of filling out dozens of strict dropdowns, users can file complex insurance claims using natural language, such as typing a paragraph about an incident[cite: 1]. The system's backend LLM parses this unstructured text and automatically pre-fills the structured React form fields[cite: 1]. Based on a complex JSON schema stored in MongoDB, the React UI dynamically reveals only the remaining, necessary questions, drastically reducing form friction[cite: 1].
 
 
 
 ## 💻 Tech Stack & Key Modules
+
 This application utilizes a highly scalable architecture for managing unstructured data and complex business rules[cite: 1]:
 
 

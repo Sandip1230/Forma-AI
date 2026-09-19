@@ -1,6 +1,7 @@
 {
   "name": "forma-ai-server",
   "version": "0.1.0",
+  "description": "Forma AI backend — a dynamic form engine with LLM-based text-to-form extraction.",
   "private": true,
   "main": "server.js",
   "scripts": {

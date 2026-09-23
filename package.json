@@ -4,6 +4,9 @@
   "description": "Forma AI backend — a dynamic form engine with LLM-based text-to-form extraction.",
   "private": true,
   "main": "server.js",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",

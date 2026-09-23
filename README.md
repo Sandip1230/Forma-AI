@@ -28,8 +28,11 @@ This application utilizes a highly scalable architecture for managing unstructur
 ##  Technical Highlights
 
 *   Advanced React Patterns: Heavy use of custom hooks, complex state management, and Dynamic UI generation[cite: 1].
+  
 *   Beyond CRUD: Utilizes AI pipelines for unstructured data parsing[cite: 1].
+
 *   Scalable Node.js: Structures Express APIs using enterprise patterns rather than monolithic, tightly coupled routes[cite: 1].
+  
 *   Complex Data Modeling: Designs MongoDB schemas that handle deeply nested JSON trees, proving NoSQL mastery[cite: 1].
 
                                                     Setup

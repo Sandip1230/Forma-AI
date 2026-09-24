@@ -9,7 +9,8 @@ This project modernizes legacy data entry by creating a seamless, AI-augmented u
 
 ## 🚀 Use Case
 
-Instead of filling out dozens of strict dropdowns, users can file complex insurance claims using natural language, such as typing a paragraph about an incident[cite: 1]. The system's backend LLM parses this unstructured text and automatically pre-fills the structured React form fields[cite: 1]. Based on a complex JSON schema stored in MongoDB, the React UI dynamically reveals only the remaining, necessary questions, drastically reducing form friction[cite: 1].
+Instead of filling out dozens of strict dropdowns, users can file complex insurance claims using natural language, such as typing a paragraph about an incident[cite: 1]. 
+The system's backend LLM parses this unstructured text and automatically pre-fills the structured React form fields[cite: 1]. Based on a complex JSON schema stored in MongoDB, the React UI dynamically reveals only the remaining, necessary questions, drastically reducing form friction[cite: 1].
 
 
 ## 💻 Tech Stack & Key Modules

@@ -9,7 +9,8 @@ This project modernizes legacy data entry by creating a seamless, AI-augmented u
 
 ## 🚀 Use Case
 
-Instead of filling out dozens of strict dropdowns, users can file complex insurance claims using natural language, such as typing a paragraph about an incident[cite: 1]. The system's backend LLM parses this unstructured text and automatically pre-fills the structured React form fields[cite: 1]. Based on a complex JSON schema stored in MongoDB, the React UI dynamically reveals only the remaining, necessary questions, drastically reducing form friction[cite: 1].
+Instead of filling out dozens of strict dropdowns, users can file complex insurance claims using natural language, such as typing a paragraph about an incident[cite: 1]. 
+The system's backend LLM parses this unstructured text and automatically pre-fills the structured React form fields[cite: 1]. Based on a complex JSON schema stored in MongoDB, the React UI dynamically reveals only the remaining, necessary questions, drastically reducing form friction[cite: 1].
 
 
 ## 💻 Tech Stack & Key Modules
@@ -28,8 +29,11 @@ This application utilizes a highly scalable architecture for managing unstructur
 ##  Technical Highlights
 
 *   Advanced React Patterns: Heavy use of custom hooks, complex state management, and Dynamic UI generation[cite: 1].
+  
 *   Beyond CRUD: Utilizes AI pipelines for unstructured data parsing[cite: 1].
+
 *   Scalable Node.js: Structures Express APIs using enterprise patterns rather than monolithic, tightly coupled routes[cite: 1].
+  
 *   Complex Data Modeling: Designs MongoDB schemas that handle deeply nested JSON trees, proving NoSQL mastery[cite: 1].
 
                                                     Setup

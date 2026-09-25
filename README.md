@@ -29,11 +29,8 @@ This application utilizes a highly scalable architecture for managing unstructur
 ##  Technical Highlights
 
 *   Advanced React Patterns: Heavy use of custom hooks, complex state management, and Dynamic UI generation[cite: 1].
-  
 *   Beyond CRUD: Utilizes AI pipelines for unstructured data parsing[cite: 1].
-
 *   Scalable Node.js: Structures Express APIs using enterprise patterns rather than monolithic, tightly coupled routes[cite: 1].
-  
 *   Complex Data Modeling: Designs MongoDB schemas that handle deeply nested JSON trees, proving NoSQL mastery[cite: 1].
 
                                                     Setup
@@ -46,7 +43,6 @@ Wherever you cloned the repo — it should contain `server.js`, `models/`, `rout
 *   npm install
 *   Create a `.env` file (see `.env.example`) with real values — MongoDB connection string, `JWT_SECRET`, `GOOGLE_API_KEY`, Gmail SMTP credentials for OTP emails, etc.
 *   If you're pointing at a local MongoDB instead of Atlas, make sure it's running (Compass, the Windows service, or `mongod` — whichever you set up).
-
 
 ### 3. Seed the demo form (only needed once, or after you change the schema)
 
@@ -67,7 +63,6 @@ Wherever you cloned the repo — it should contain `server.js`, `models/`, `rout
 *   npm run dev
 *   It'll print a local URL — normally http://localhost:5173.
 
-
 ### 6. Open it
 
 *   http://localhost:5173/login → sign up or log in (set `ALLOW_DEV_LOGIN=true` in `.env` for a one-click dev account, skipping OTP verification)
@@ -75,7 +70,6 @@ Wherever you cloned the repo — it should contain `server.js`, `models/`, `rout
 *   http://localhost:5173/forms → all forms, with submissions
 *   http://localhost:5173/forms/new → build a new form schema
 *   http://localhost:5173/forms/claim-demo → the seeded demo form, with the Magic Input box and weather/flood branching
-
 
 ### Quick Review
 

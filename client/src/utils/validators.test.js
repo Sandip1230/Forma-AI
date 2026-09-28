@@ -40,4 +40,11 @@ describe("rulesForField", () => {
     const rules = rulesForField({ id: "notes", label: "Notes", type: "textarea" });
     expect(rules).toEqual({});
   });
+
+  test("an email field rejects a value with no @ or domain", () => {
+    const rules = rulesForField({ id: "contactEmail", label: "Email", type: "email" });
+    expect(rules.pattern.value.test("yashvi")).toBe(false);
+    expect(rules.pattern.value.test("yashvi@example.com")).toBe(true);
+    expect(rules.pattern.message).toBe("Enter a valid email address");
+  });
 });

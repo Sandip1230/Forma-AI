@@ -19,13 +19,13 @@ The system's backend LLM parses this unstructured text and automatically pre-fil
 This application utilizes a highly scalable architecture for managing unstructured data and complex business rules:
 
 
-*   `Frontend` (React & React Hook Form):** A Dynamic Form Renderer capable of generating complex, nested UIs dynamically entirely from a backend JSON schema.
+*   `Frontend` (React & React Hook Form): A Dynamic Form Renderer capable of generating complex, nested UIs dynamically entirely from a backend JSON schema.
 
-*   `State Management (Redux / Zustand)`:** Manages the complex, deeply nested state of the form as the user interacts with it.
+*   `State Management (Redux / Zustand)`: Manages the complex, deeply nested state of the form as the user interacts with it.
 
-*   `Backend & AI Pipeline (Node.js & LangChain)`:** An LLM Extraction API uses an LLM (like GPT-4o or a local model) to parse unstructured user text and map it to the strict JSON schema required by the form.
+*   `Backend & AI Pipeline (Node.js & LangChain)`: An LLM Extraction API uses an LLM (like GPT-4o or a local model) to parse unstructured user text and map it to the strict JSON schema required by the form.
 
-*   `Database (MongoDB)`:** A Schema Store stores the rules, validation logic, and branching paths for hundreds of different form types.
+*   `Database (MongoDB)`: A Schema Store stores the rules, validation logic, and branching paths for hundreds of different form types.
 
 ##  Technical Highlights
 

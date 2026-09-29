@@ -79,7 +79,7 @@ function FieldRenderer({ field, register, error, aiFilled, needsReview }) {
   return (
     <div className={wrapClass}>
       {labelEl}
-      <input id={field.id} type={["date", "number", "email"].includes(field.type) ? field.type : "text"} placeholder={field.placeholder} {...register(field.id, rules)} />
+      <input id={field.id} type={field.type === "phone" ? "tel" : ["date", "number", "email"].includes(field.type) ? field.type : "text"} placeholder={field.placeholder} {...register(field.id, rules)} />
       {errorEl}
     </div>
   );

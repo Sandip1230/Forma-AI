@@ -16,5 +16,11 @@ export function rulesForField(field) {
     // confirmation email send.
     rules.pattern = { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Enter a valid email address" };
   }
+  if (field.type === "phone") {
+    // Deliberately permissive — digits plus common separators/parens/+,
+    // 7-15 digits (E.164's own range), so it doesn't reject real numbers
+    // just for using a country code or a formatting style this didn't guess.
+    rules.pattern = { value: /^[+]?[\d\s\-().]{7,20}$/, message: "Enter a valid phone number" };
+  }
   return rules;
 }

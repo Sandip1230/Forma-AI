@@ -1,7 +1,7 @@
 const express = require("express");
 const {
   getSchema, listSchemas, createSchema, updateSchema, getSchemaVersions, submitResponse, getFormResponses,
-  getStats, getRecentActivity, exportResponses, seedDemo, resetDemoData,
+  getStats, getRecentActivity, getSubmissionHistoryByPhone, exportResponses, seedDemo, resetDemoData,
 } = require("../controllers/formSchemaController");
 const { extract, classify } = require("../controllers/extractionController");
 const { getDraft, saveDraft, deleteDraft } = require("../controllers/draftController");
@@ -27,6 +27,11 @@ router.post("/classify", requireAuth, classify);
 router.put("/:formId", requireAuth, updateSchema);
 router.get("/:formId/versions", requireAuth, getSchemaVersions);
 router.get("/:formId/responses", requireAuth, getFormResponses);
+
+// Public, like the rest of this section — used from the review screen
+// before a person has an account. Registered before GET /:formId for the
+// same reason as /events and /recent-activity above.
+router.get("/submission-history", getSubmissionHistoryByPhone);
 
 // Public — the actual fill experience; no login required to file a claim.
 router.get("/:formId", getSchema);

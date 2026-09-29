@@ -242,6 +242,39 @@ async function getRecentActivity(req, res) {
   );
 }
 
+function normalizePhone(value) {
+  return String(value || "").replace(/[\s\-().]/g, "");
+}
+
+// Cross-form, cross-user: given a phone number, has this number shown up on
+// *any* prior submission to *any* form with a phone-type field? Public, like
+// the rest of the fill/submit flow — it's used from the review screen before
+// a person has an account, and only ever returns which form + when, never
+// the rest of what they submitted.
+async function getSubmissionHistoryByPhone(req, res) {
+  const { phone } = req.query;
+  if (!phone || !phone.trim()) {
+    return res.status(400).json({ error: "phone is required" });
+  }
+  const target = normalizePhone(phone);
+
+  const schemasWithPhone = await FormSchema.find({ "fields.type": "phone" }).select("formId title fields").lean();
+  const matches = [];
+
+  for (const schema of schemasWithPhone) {
+    const phoneField = schema.fields.find((f) => f.type === "phone");
+    const responses = await FormResponse.find({ formId: schema.formId }).select("createdAt values").lean();
+    for (const r of responses) {
+      if (normalizePhone(r.values?.[phoneField.id]) === target) {
+        matches.push({ formTitle: schema.title, submittedAt: r.createdAt });
+      }
+    }
+  }
+
+  matches.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+  res.json({ count: matches.length, matches });
+}
+
 function toCsvValue(val) {
   if (val === null || val === undefined) return "";
   const str = String(val);
@@ -292,6 +325,7 @@ module.exports = {
   getFormResponses: asyncHandler(getFormResponses),
   getStats: asyncHandler(getStats),
   getRecentActivity: asyncHandler(getRecentActivity),
+  getSubmissionHistoryByPhone: asyncHandler(getSubmissionHistoryByPhone),
   exportResponses: asyncHandler(exportResponses),
   seedDemo: asyncHandler(seedDemo),
   resetDemoData: asyncHandler(resetDemoData),

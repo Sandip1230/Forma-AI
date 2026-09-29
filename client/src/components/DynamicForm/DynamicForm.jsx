@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import FieldRenderer from "./FieldRenderer";
+import { fetchSubmissionHistoryByPhone } from "../../services/api";
 import "./DynamicForm.css";
 
 // Turns a raw form value into what a person should actually read on the
@@ -49,6 +50,36 @@ function DynamicForm({ schema, onSubmit, submitting, prefillValues, aiFilledIds 
   // confirm on the review screen below, so nothing is re-typed either way.
   const [pendingValues, setPendingValues] = useState(null);
   const [reviewConfirmed, setReviewConfirmed] = useState(false);
+  const [phoneHistory, setPhoneHistory] = useState(null);
+
+  const phoneField = schema.fields.find((f) => f.type === "phone");
+
+  // Looked up the instant the review screen opens — a repeat number is
+  // exactly the kind of thing worth surfacing before the confirm click, not
+  // buried in a report afterward.
+  useEffect(() => {
+    if (!pendingValues || !phoneField) {
+      setPhoneHistory(null);
+      return;
+    }
+    const phoneValue = pendingValues[phoneField.id];
+    if (!phoneValue) {
+      setPhoneHistory(null);
+      return;
+    }
+    let cancelled = false;
+    fetchSubmissionHistoryByPhone(phoneValue)
+      .then((result) => {
+        if (!cancelled) setPhoneHistory(result);
+      })
+      .catch(() => {
+        if (!cancelled) setPhoneHistory(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingValues]);
 
   useEffect(() => {
     if (prefillValues) reset(prefillValues);
@@ -86,6 +117,18 @@ function DynamicForm({ schema, onSubmit, submitting, prefillValues, aiFilledIds 
         <div className="df-review">
           <h3 className="df-review__title">Review your responses</h3>
           <p className="df-review__subtitle">Check everything below, then confirm to submit.</p>
+
+          {phoneHistory?.count > 0 && (
+            <div className="df-review-banner df-review-banner--history">
+              <span className="df-review-banner__icon">ℹ</span>
+              <span>
+                This phone number has {phoneHistory.count} prior submission{phoneHistory.count > 1 ? "s" : ""}:{" "}
+                {phoneHistory.matches
+                  .map((m) => `${m.formTitle} (${new Date(m.submittedAt).toLocaleDateString()})`)
+                  .join(", ")}
+              </span>
+            </div>
+          )}
 
           <dl className="df-review__list">
             {visibleFields.map((field) => (

@@ -13,6 +13,7 @@ const FIELD_TYPES = [
   { value: "date", label: "Date" },
   { value: "number", label: "Number" },
   { value: "email", label: "Email" },
+  { value: "phone", label: "Phone" },
 ];
 
 // Turns a label like "What happened?" into a usable field id ("whatHappened")

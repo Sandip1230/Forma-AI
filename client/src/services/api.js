@@ -111,6 +111,10 @@ export function fetchRecentActivity() {
   return request("/forms/recent-activity");
 }
 
+export function fetchSubmissionHistoryByPhone(phone) {
+  return request(`/forms/submission-history?phone=${encodeURIComponent(phone)}`);
+}
+
 // EventSource isn't fetch-based, so it can't go through request() — this
 // just centralizes the same base-URL logic the rest of the module uses.
 export function subscribeToSubmissionEvents() {

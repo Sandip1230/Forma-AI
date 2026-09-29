@@ -62,6 +62,7 @@
 .df-field input[type="number"],
 .df-field input[type="password"],
 .df-field input[type="email"],
+.df-field input[type="tel"],
 .df-field select,
 .df-field textarea {
   padding: 12px 14px;
@@ -217,6 +218,20 @@
   color: #fbbf24;
 }
 .df-review-banner__icon { flex-shrink: 0; }
+
+/* Informational, not a warning — a repeat submission isn't necessarily a
+   problem, just worth knowing before confirming. */
+.df-review-banner--history {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--text-primary);
+  margin-bottom: 18px;
+}
+[data-theme="dark"] .df-review-banner--history {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
 
 /* Newly-revealed conditional fields unmount/mount (see DynamicForm.jsx's
    `if (!visibility[field.id]) return null`), so this keyframe animation

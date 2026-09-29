@@ -42,8 +42,6 @@ function Hub() {
 
         <SmartIntake />
 
-        <RecentActivity />
-
         <div className="hub-tiles">
           <Link to="/dashboard" className="hub-tile">
             <div className="hub-tile__icon hub-tile__icon--accent">
@@ -66,6 +64,8 @@ function Hub() {
             <p>Browse every form and its submissions.</p>
           </Link>
         </div>
+
+        <RecentActivity />
       </main>
     </div>
   );

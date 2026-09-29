@@ -77,6 +77,10 @@ export function classifyFormType(text) {
   return request("/forms/classify", { method: "POST", body: JSON.stringify({ text }) });
 }
 
+export function generateFormSchema(description) {
+  return request("/forms/generate-schema", { method: "POST", body: JSON.stringify({ description }) });
+}
+
 export function fetchFormResponses(formId) {
   return request(`/forms/${formId}/responses`);
 }

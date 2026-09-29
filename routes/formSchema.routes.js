@@ -3,7 +3,7 @@ const {
   getSchema, listSchemas, createSchema, updateSchema, getSchemaVersions, submitResponse, getFormResponses,
   getStats, getRecentActivity, getSubmissionHistoryByPhone, exportResponses, seedDemo, resetDemoData,
 } = require("../controllers/formSchemaController");
-const { extract, classify } = require("../controllers/extractionController");
+const { extract, classify, generateSchema } = require("../controllers/extractionController");
 const { getDraft, saveDraft, deleteDraft } = require("../controllers/draftController");
 const { streamEvents } = require("../controllers/eventsController");
 const { requireAuth } = require("../middleware/auth");
@@ -24,6 +24,7 @@ router.get("/recent-activity", requireAuth, getRecentActivity);
 router.get("/events", requireAuth, streamEvents);
 router.post("/", requireAuth, createSchema);
 router.post("/classify", requireAuth, classify);
+router.post("/generate-schema", requireAuth, generateSchema);
 router.put("/:formId", requireAuth, updateSchema);
 router.get("/:formId/versions", requireAuth, getSchemaVersions);
 router.get("/:formId/responses", requireAuth, getFormResponses);

@@ -215,4 +215,98 @@ async function classifyFormType(text, formSummaries) {
   return { formId: matched.formId, title: matched.title };
 }
 
-module.exports = { extractFromText, classifyFormType };
+const FIELD_TYPES = ["text", "textarea", "select", "checkbox", "date", "number", "email", "phone"];
+
+const generatedFieldSchema = z.object({
+  label: z.string().describe("A short, human-readable field label, e.g. \"Policy number\"."),
+  type: z.enum(FIELD_TYPES).describe("select for a fixed set of choices; email/phone for contact info; checkbox for yes/no."),
+  required: z.boolean(),
+  options: z
+    .array(z.string())
+    .optional()
+    .describe("Only when type is \"select\": 2-6 realistic option labels. Omit for every other type."),
+});
+
+const formGenerationSchema = z.object({
+  title: z.string().describe("A short, clear title for the form."),
+  description: z.string().describe("One sentence describing what this form is for."),
+  fields: z.array(generatedFieldSchema).min(3).max(12).describe("The fields this form needs to collect."),
+});
+
+// Turns a label into a field id the same way the CreateForm builder's own
+// slugify() does, plus a counter suffix on collision — the AI generates
+// labels, not ids, so two fields sharing a label (or one just being
+// ambiguous) can't silently produce duplicate/invalid ids.
+function slugify(text) {
+  return text
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+(.)/g, (_, c) => c.toUpperCase())
+    .replace(/[^a-zA-Z0-9]/g, "");
+}
+
+function uniqueId(base, used) {
+  const safeBase = base || "field";
+  let id = safeBase;
+  let i = 2;
+  while (used.has(id)) {
+    id = `${safeBase}${i}`;
+    i += 1;
+  }
+  used.add(id);
+  return id;
+}
+
+// Drafts a form's fields from a plain-language description — the "AI Form
+// Builder" option on Create Form, alongside the fixed templates and
+// starting from scratch. Deliberately doesn't generate showIf branching:
+// the AI inventing a conditional that references a field/option that
+// doesn't quite match would silently break, where inventing a flat field
+// list has no such failure mode — branching is still addable by hand
+// afterward in the same builder.
+async function generateFormSchema(description) {
+  if (!process.env.GOOGLE_API_KEY) {
+    const err = new Error("GOOGLE_API_KEY is not configured on the server.");
+    err.status = 503;
+    throw err;
+  }
+
+  const model = new ChatGoogleGenerativeAI({ model: "gemini-3.5-flash-lite", temperature: 0.2 });
+  const structuredModel = model.withStructuredOutput(formGenerationSchema, {
+    name: "generate_form_schema",
+    method: "functionCalling",
+  });
+
+  const systemPrompt = [
+    "You design a data-collection form's fields based on a description of what the form is for.",
+    "Return a short title, a one-sentence description, and 3 to 12 fields that comprehensively but efficiently capture what this form needs to collect.",
+    "Use \"select\" for any field with a natural fixed set of choices, \"email\"/\"phone\" for contact fields, \"date\" for dates, \"number\" for quantities or amounts, \"checkbox\" for yes/no.",
+    "Mark a field required only if the form genuinely can't be processed without it.",
+  ].join(" ");
+
+  let result;
+  try {
+    result = await structuredModel.invoke([
+      { role: "system", content: systemPrompt },
+      { role: "user", content: description },
+    ]);
+  } catch (err) {
+    throw mapExtractionError(err);
+  }
+
+  const usedIds = new Set();
+  const fields = result.fields.map((f) => {
+    const id = uniqueId(slugify(f.label), usedIds);
+    const field = { id, label: f.label, type: f.type, required: f.required };
+    if (f.type === "select") {
+      const opts = (f.options && f.options.length > 0 ? f.options : ["Option 1", "Option 2"]);
+      const usedValues = new Set();
+      field.options = opts.map((label) => ({ value: uniqueId(slugify(label), usedValues), label }));
+    }
+    return field;
+  });
+
+  return { title: result.title, description: result.description, fields };
+}
+
+module.exports = { extractFromText, classifyFormType, generateFormSchema };

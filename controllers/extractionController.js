@@ -1,5 +1,5 @@
 const FormSchema = require("../models/FormSchema");
-const { extractFromText, classifyFormType } = require("../services/extractionService");
+const { extractFromText, classifyFormType, generateFormSchema } = require("../services/extractionService");
 
 async function extract(req, res) {
   try {
@@ -41,4 +41,19 @@ async function classify(req, res) {
   }
 }
 
-module.exports = { extract, classify };
+async function generateSchema(req, res) {
+  try {
+    const { description } = req.body;
+    if (!description || !description.trim()) {
+      return res.status(400).json({ error: "description is required" });
+    }
+
+    const result = await generateFormSchema(description.trim());
+    res.json(result);
+  } catch (err) {
+    console.error("Form generation error:", err.message);
+    res.status(err.status || 500).json({ error: err.message || "Form generation failed" });
+  }
+}
+
+module.exports = { extract, classify, generateSchema };

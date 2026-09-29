@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { createSchema, updateSchema, fetchFormSchema } from "../services/api";
+import { createSchema, updateSchema, fetchFormSchema, generateFormSchema } from "../services/api";
 import { FORM_TEMPLATES } from "../data/formTemplates";
 import Logo from "../components/Logo";
 import "./FormBuilder.css";
@@ -25,6 +25,17 @@ function slugify(text) {
     .toLowerCase()
     .replace(/[^a-z0-9]+(.)/g, (_, c) => c.toUpperCase())
     .replace(/[^a-zA-Z0-9]/g, "");
+}
+
+// Same idea as slugify() above but hyphenated, matching the style of the
+// fixed templates' own suggestedFormId (e.g. "health-insurance-claim") —
+// used only for the AI-generated form's suggested Form ID.
+function kebabSlugify(text) {
+  return text
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 let keySeq = 0;
@@ -251,7 +262,24 @@ function FieldEditor({ field, index, total, priorFields, onChange, onRemove, onM
   );
 }
 
-function TemplateGallery({ onChoose, onStartFromScratch }) {
+function TemplateGallery({ onChoose, onStartFromScratch, onGenerate }) {
+  const [aiDescription, setAiDescription] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const [genError, setGenError] = useState("");
+
+  const handleGenerate = async () => {
+    if (!aiDescription.trim()) return;
+    setGenerating(true);
+    setGenError("");
+    try {
+      await onGenerate(aiDescription.trim());
+    } catch (err) {
+      setGenError(err.message || "Could not generate a form from that description.");
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   return (
     <div className="cf-gallery">
       <div className="cf-gallery__grid">
@@ -265,6 +293,37 @@ function TemplateGallery({ onChoose, onStartFromScratch }) {
           </button>
         ))}
       </div>
+
+      <div className="cf-gallery__ai">
+        <div className="cf-gallery__ai-label">
+          <span aria-hidden="true">✨</span> Or describe the form you need, and AI will draft it
+        </div>
+        <textarea
+          className="cf-gallery__ai-textarea"
+          placeholder="e.g. A form for employees to request time off, with start/end dates and a reason."
+          value={aiDescription}
+          onChange={(e) => setAiDescription(e.target.value)}
+          rows={2}
+          disabled={generating}
+        />
+        {genError && <div className="cf-gallery__ai-error">{genError}</div>}
+        <button
+          type="button"
+          className="cf-gallery__ai-btn"
+          onClick={handleGenerate}
+          disabled={generating || !aiDescription.trim()}
+        >
+          {generating ? (
+            <>
+              <span className="cf-gallery__ai-spinner" />
+              Drafting…
+            </>
+          ) : (
+            <>Generate with AI</>
+          )}
+        </button>
+      </div>
+
       <button type="button" className="cf-gallery__scratch" onClick={onStartFromScratch}>
         Or start from a blank form →
       </button>
@@ -295,6 +354,19 @@ function CreateForm() {
     setTitle(template.title);
     setDescription(template.description);
     setFields(template.fields.map(fieldToBuilderState));
+    setTemplateChosen(true);
+  };
+
+  // The AI Form Builder option — same landing spot as picking a fixed
+  // template (the ordinary builder, fully editable, nothing saved yet), so
+  // a bad or odd generation is just as easy to fix by hand before it's ever
+  // written to the shared store.
+  const applyGenerated = async (userDescription) => {
+    const result = await generateFormSchema(userDescription);
+    setFormId(kebabSlugify(result.title) || `generated-${Date.now()}`);
+    setTitle(result.title);
+    setDescription(result.description);
+    setFields(result.fields.map(fieldToBuilderState));
     setTemplateChosen(true);
   };
 
@@ -443,7 +515,7 @@ function CreateForm() {
         {isEditMode && loadingExisting ? (
           <div className="cf-loading">Loading form…</div>
         ) : !templateChosen ? (
-          <TemplateGallery onChoose={applyTemplate} onStartFromScratch={startFromScratch} />
+          <TemplateGallery onChoose={applyTemplate} onStartFromScratch={startFromScratch} onGenerate={applyGenerated} />
         ) : (
         <form onSubmit={handleSubmit}>
           {!isEditMode && (

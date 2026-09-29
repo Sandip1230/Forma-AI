@@ -1,7 +1,20 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import FieldRenderer from "./FieldRenderer";
 import "./DynamicForm.css";
+
+// Turns a raw form value into what a person should actually read on the
+// review screen — an option's label instead of its stored value, Yes/No
+// instead of true/false, "—" instead of a blank.
+function formatFieldValue(field, value) {
+  if (value === undefined || value === null || value === "") return "—";
+  if (field.type === "checkbox") return value ? "Yes" : "No";
+  if (field.type === "select") {
+    const opt = field.options?.find((o) => o.value === value);
+    return opt?.label ?? String(value);
+  }
+  return String(value);
+}
 
 function resolveVisibility(fields, values) {
   const byId = Object.fromEntries(fields.map((f) => [f.id, f]));
@@ -31,6 +44,11 @@ function resolveVisibility(fields, values) {
 
 function DynamicForm({ schema, onSubmit, submitting, prefillValues, aiFilledIds = [], aiWasUsed = false, onValuesChange }) {
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
+  // Non-null once the form's own validation has passed once and the user
+  // clicked Submit — holds the values that will actually be sent once they
+  // confirm on the review screen below, so nothing is re-typed either way.
+  const [pendingValues, setPendingValues] = useState(null);
+  const [reviewConfirmed, setReviewConfirmed] = useState(false);
 
   useEffect(() => {
     if (prefillValues) reset(prefillValues);
@@ -61,8 +79,70 @@ function DynamicForm({ schema, onSubmit, submitting, prefillValues, aiFilledIds 
     return Math.round((filled / requiredVisible.length) * 100);
   }, [schema.fields, visibility, liveValues]);
 
+  if (pendingValues) {
+    const visibleFields = schema.fields.filter((f) => visibility[f.id]);
+    return (
+      <div className="df">
+        <div className="df-review">
+          <h3 className="df-review__title">Review your responses</h3>
+          <p className="df-review__subtitle">Check everything below, then confirm to submit.</p>
+
+          <dl className="df-review__list">
+            {visibleFields.map((field) => (
+              <div className="df-review__row" key={field.id}>
+                <dt>{field.label}</dt>
+                <dd>{formatFieldValue(field, pendingValues[field.id])}</dd>
+              </div>
+            ))}
+          </dl>
+
+          <div className="df-field df-field--checkbox df-review__confirm">
+            <label>
+              <input
+                type="checkbox"
+                className="df-checkbox"
+                checked={reviewConfirmed}
+                onChange={(e) => setReviewConfirmed(e.target.checked)}
+              />
+              <span className="df-checkbox__box">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </span>
+              <span>I've reviewed this and confirm it's accurate</span>
+            </label>
+          </div>
+
+          <div className="df-review__actions">
+            <button
+              type="button"
+              className="df-review__back"
+              onClick={() => setPendingValues(null)}
+              disabled={submitting}
+            >
+              ← Back to edit
+            </button>
+            <button
+              type="button"
+              className="df-submit"
+              disabled={!reviewConfirmed || submitting}
+              onClick={() => onSubmit(pendingValues)}
+            >
+              {submitting ? (
+                <>
+                  <span className="df-submit__spinner" />
+                  Submitting…
+                </>
+              ) : (
+                <>Confirm & Submit</>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <form className="df" onSubmit={handleSubmit(onSubmit)} noValidate>
+    <form className="df" onSubmit={handleSubmit((values) => setPendingValues(values))} noValidate>
       <div className="df-progress">
         <div className="df-progress__bar">
           <div className="df-progress__fill" style={{ width: `${progress}%` }} />
@@ -100,7 +180,7 @@ function DynamicForm({ schema, onSubmit, submitting, prefillValues, aiFilledIds 
           </>
         ) : (
           <>
-            Submit
+            Review & Submit
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
           </>
         )}

@@ -264,3 +264,73 @@
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
+
+/* ---- review-before-submit screen ---- */
+.df-review {
+  animation: fade-in var(--duration-med) var(--ease);
+}
+.df-review__title {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0 0 4px;
+  color: var(--text-primary);
+}
+.df-review__subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 18px;
+}
+
+.df-review__list {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 22px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.df-review__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 16px;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+}
+.df-review__row:first-child { border-top: none; }
+.df-review__row dt {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  max-width: 45%;
+}
+.df-review__row dd {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: right;
+  word-break: break-word;
+}
+
+.df-review__confirm {
+  margin-bottom: 18px;
+}
+
+.df-review__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.df-review__back {
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px 0;
+}
+.df-review__back:hover:not(:disabled) { color: var(--text-primary); }
+.df-review__back:disabled { opacity: 0.5; cursor: not-allowed; }

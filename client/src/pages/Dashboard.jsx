@@ -17,7 +17,7 @@ function Dashboard() {
 
   const [forms, setForms] = useState([]);
   const [stats, setStats] = useState({
-    totalForms: 0, totalSubmissions: 0, submissionsToday: 0, dailySubmissions: [],
+    totalForms: 0, totalSubmissions: 0, submissionsToday: 0, submissionsYesterday: 0, dailySubmissions: [],
     aiAccuracy: { totalFilled: 0, totalKept: 0 },
   });
   const [loading, setLoading] = useState(true);
@@ -134,6 +134,8 @@ function Dashboard() {
           />
           <StatCard
             label="Submitted Today" value={loading ? "…" : stats.submissionsToday} tone="blue"
+            delta={loading ? undefined : stats.submissionsToday - stats.submissionsYesterday}
+            deltaLabel="vs yesterday"
             icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" /></svg>}
           />
           {!loading && stats.aiAccuracy.totalFilled > 0 && (

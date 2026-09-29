@@ -1,7 +1,7 @@
 const express = require("express");
 const {
   getSchema, listSchemas, createSchema, updateSchema, getSchemaVersions, submitResponse, getFormResponses,
-  getStats, exportResponses, seedDemo, resetDemoData,
+  getStats, getRecentActivity, exportResponses, seedDemo, resetDemoData,
 } = require("../controllers/formSchemaController");
 const { extract, classify } = require("../controllers/extractionController");
 const { getDraft, saveDraft, deleteDraft } = require("../controllers/draftController");
@@ -18,6 +18,7 @@ router.post("/seed-demo", requireAuth, seedDemo);
 router.delete("/demo-data", requireAuth, resetDemoData);
 router.get("/", requireAuth, listSchemas);
 router.get("/stats", requireAuth, getStats);
+router.get("/recent-activity", requireAuth, getRecentActivity);
 // Must be registered before GET /:formId below, or a request for this exact
 // path would match that route instead ("events" read as a formId).
 router.get("/events", requireAuth, streamEvents);

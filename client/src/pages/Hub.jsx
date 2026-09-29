@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import Logo from "../components/Logo";
 import ThemeToggle from "../components/ThemeToggle";
 import SmartIntake from "../components/SmartIntake/SmartIntake";
+import RecentActivity from "../components/RecentActivity/RecentActivity";
 import "./Dashboard.css";
 import "./Hub.css";
 
@@ -11,6 +12,13 @@ function Hub() {
 
   return (
     <div className="dash">
+      <div className="dash-bg" aria-hidden="true">
+        <div className="dash-bg__grid" />
+        <div className="dash-bg__orb dash-bg__orb--a" />
+        <div className="dash-bg__orb dash-bg__orb--b" />
+        <div className="dash-bg__scanline" />
+      </div>
+
       <header className="dash-header">
         <div className="dash-header__brand">
           <Logo size={34} />
@@ -33,6 +41,8 @@ function Hub() {
         </div>
 
         <SmartIntake />
+
+        <RecentActivity />
 
         <div className="hub-tiles">
           <Link to="/dashboard" className="hub-tile">

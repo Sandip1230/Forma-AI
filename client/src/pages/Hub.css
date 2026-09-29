@@ -46,6 +46,13 @@
   text-decoration: none;
   color: inherit;
   transition: transform var(--duration-fast) var(--ease), box-shadow var(--duration-fast) var(--ease), border-color var(--duration-fast) var(--ease);
+  animation: hub-tile-in 0.45s var(--ease) both;
+}
+.hub-tile:nth-child(1) { animation-delay: 0.05s; }
+.hub-tile:nth-child(2) { animation-delay: 0.15s; }
+@keyframes hub-tile-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 .hub-tile:hover {
   transform: translateY(-2px);

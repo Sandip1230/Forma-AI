@@ -217,7 +217,29 @@ async function getStats(req, res) {
     ? { totalFilled: aiAgg[0].totalFilled, totalKept: aiAgg[0].totalKept }
     : { totalFilled: 0, totalKept: 0 };
 
-  res.json({ totalForms, totalSubmissions, submissionsToday, dailySubmissions, aiAccuracy });
+  // "Yesterday" is always the second-to-last entry of the zero-filled
+  // dailySubmissions array above (the last is today) — no extra query needed.
+  const submissionsYesterday = dailySubmissions[dailySubmissions.length - 2]?.count || 0;
+
+  res.json({ totalForms, totalSubmissions, submissionsToday, submissionsYesterday, dailySubmissions, aiAccuracy });
+}
+
+// Cross-form, unlike getFormResponses — backs the Hub's live activity feed,
+// which shows a submission the instant it happens on any form, not just the
+// one the current user has open.
+async function getRecentActivity(req, res) {
+  const responses = await FormResponse.find().sort({ createdAt: -1 }).limit(8).select("formId createdAt").lean();
+  const formIds = [...new Set(responses.map((r) => r.formId))];
+  const schemas = await FormSchema.find({ formId: { $in: formIds } }).select("formId title").lean();
+  const titleByFormId = Object.fromEntries(schemas.map((s) => [s.formId, s.title]));
+
+  res.json(
+    responses.map((r) => ({
+      formId: r.formId,
+      formTitle: titleByFormId[r.formId] || r.formId,
+      submittedAt: r.createdAt,
+    }))
+  );
 }
 
 function toCsvValue(val) {
@@ -269,6 +291,7 @@ module.exports = {
   submitResponse: asyncHandler(submitResponse),
   getFormResponses: asyncHandler(getFormResponses),
   getStats: asyncHandler(getStats),
+  getRecentActivity: asyncHandler(getRecentActivity),
   exportResponses: asyncHandler(exportResponses),
   seedDemo: asyncHandler(seedDemo),
   resetDemoData: asyncHandler(resetDemoData),

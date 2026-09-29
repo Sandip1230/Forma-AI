@@ -107,6 +107,10 @@ export function fetchDashboardStats() {
   return request("/forms/stats");
 }
 
+export function fetchRecentActivity() {
+  return request("/forms/recent-activity");
+}
+
 // EventSource isn't fetch-based, so it can't go through request() — this
 // just centralizes the same base-URL logic the rest of the module uses.
 export function subscribeToSubmissionEvents() {

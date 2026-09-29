@@ -1,0 +1,95 @@
+// Starting points offered on the "Create Form" gallery — each pre-fills the
+// builder with a genuinely different field set (not just a renamed copy of
+// one form) so picking a template actually saves the field-by-field work,
+// not just the naming. All still fully editable afterward before saving.
+export const FORM_TEMPLATES = [
+  {
+    key: "health-insurance",
+    title: "Health Insurance Claim",
+    emoji: "🏥",
+    description: "File a claim for medical treatment, hospitalization, or a prescription expense.",
+    suggestedFormId: "health-insurance-claim",
+    fields: [
+      { id: "policyNumber", label: "Policy number", type: "text", required: true, placeholder: "e.g. HI-2024-00123" },
+      { id: "patientName", label: "Patient name", type: "text", required: true },
+      { id: "diagnosis", label: "Diagnosis / reason for treatment", type: "textarea", required: true },
+      { id: "treatmentDate", label: "Date of treatment", type: "date", required: true },
+      { id: "hospitalName", label: "Hospital / clinic name", type: "text", required: true },
+      { id: "estimatedCost", label: "Estimated cost", type: "number", required: true },
+      { id: "contactEmail", label: "Your email (for a confirmation)", type: "email", required: false, placeholder: "e.g. you@example.com" },
+      { id: "contactPhone", label: "Your phone number", type: "phone", required: true, placeholder: "e.g. +1 555 123 4567" },
+    ],
+  },
+  {
+    key: "fire-insurance",
+    title: "Fire Insurance Claim",
+    emoji: "🔥",
+    description: "Report property or contents damage caused by fire.",
+    suggestedFormId: "fire-insurance-claim",
+    fields: [
+      { id: "policyNumber", label: "Policy number", type: "text", required: true, placeholder: "e.g. FI-2024-00456" },
+      { id: "propertyAddress", label: "Property address", type: "text", required: true },
+      { id: "incidentDate", label: "Date of fire", type: "date", required: true },
+      {
+        id: "causeOfFire", label: "Suspected cause", type: "select", required: true,
+        options: [
+          { value: "electrical", label: "Electrical fault" },
+          { value: "cooking", label: "Cooking accident" },
+          { value: "wildfire", label: "Wildfire" },
+          { value: "arson", label: "Arson" },
+          { value: "unknown", label: "Unknown" },
+        ],
+      },
+      { id: "damageDescription", label: "Description of damage", type: "textarea", required: true },
+      { id: "estimatedLoss", label: "Estimated loss", type: "number", required: true },
+      { id: "contactEmail", label: "Your email (for a confirmation)", type: "email", required: false },
+      { id: "contactPhone", label: "Your phone number", type: "phone", required: true },
+    ],
+  },
+  {
+    key: "accident-claim",
+    title: "Personal Accident Claim",
+    emoji: "🤕",
+    description: "Claim for an injury sustained in an accident — not vehicle-related.",
+    suggestedFormId: "accident-claim",
+    fields: [
+      { id: "claimantName", label: "Claimant name", type: "text", required: true },
+      { id: "incidentDate", label: "Date of incident", type: "date", required: true },
+      { id: "incidentLocation", label: "Where did it happen?", type: "text", required: true },
+      { id: "injuryDescription", label: "Describe the injury", type: "textarea", required: true },
+      { id: "receivedTreatment", label: "Did you receive medical treatment?", type: "checkbox", required: false },
+      {
+        id: "hospitalName", label: "Hospital / clinic name", type: "text", required: false,
+        showIf: { field: "receivedTreatment", equals: true },
+      },
+      { id: "contactEmail", label: "Your email (for a confirmation)", type: "email", required: false },
+      { id: "contactPhone", label: "Your phone number", type: "phone", required: true },
+    ],
+  },
+  {
+    key: "travel-insurance",
+    title: "Travel Insurance Claim",
+    emoji: "✈️",
+    description: "Claim for a cancelled trip, lost baggage, or a travel medical emergency.",
+    suggestedFormId: "travel-insurance-claim",
+    fields: [
+      { id: "policyNumber", label: "Policy number", type: "text", required: true },
+      { id: "tripDestination", label: "Trip destination", type: "text", required: true },
+      { id: "departureDate", label: "Departure date", type: "date", required: true },
+      { id: "returnDate", label: "Return date", type: "date", required: true },
+      {
+        id: "claimType", label: "Type of claim", type: "select", required: true,
+        options: [
+          { value: "cancellation", label: "Trip cancellation" },
+          { value: "baggage", label: "Lost or delayed baggage" },
+          { value: "medical", label: "Medical emergency" },
+          { value: "flight_delay", label: "Flight delay" },
+        ],
+      },
+      { id: "claimDescription", label: "Describe what happened", type: "textarea", required: true },
+      { id: "estimatedAmount", label: "Estimated claim amount", type: "number", required: true },
+      { id: "contactEmail", label: "Your email (for a confirmation)", type: "email", required: false },
+      { id: "contactPhone", label: "Your phone number", type: "phone", required: true },
+    ],
+  },
+];

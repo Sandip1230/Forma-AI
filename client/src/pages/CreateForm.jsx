@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { createSchema, updateSchema, fetchFormSchema } from "../services/api";
+import { FORM_TEMPLATES } from "../data/formTemplates";
 import Logo from "../components/Logo";
 import "./FormBuilder.css";
 import "./CreateForm.css";
@@ -250,11 +251,35 @@ function FieldEditor({ field, index, total, priorFields, onChange, onRemove, onM
   );
 }
 
+function TemplateGallery({ onChoose, onStartFromScratch }) {
+  return (
+    <div className="cf-gallery">
+      <div className="cf-gallery__grid">
+        {FORM_TEMPLATES.map((t) => (
+          <button type="button" className="cf-gallery__card" key={t.key} onClick={() => onChoose(t)}>
+            <h3>
+              <span className="cf-gallery__emoji" aria-hidden="true">{t.emoji}</span> {t.title}
+            </h3>
+            <p>{t.description}</p>
+            <span className="cf-gallery__count">{t.fields.length} fields, ready to go</span>
+          </button>
+        ))}
+      </div>
+      <button type="button" className="cf-gallery__scratch" onClick={onStartFromScratch}>
+        Or start from a blank form →
+      </button>
+    </div>
+  );
+}
+
 function CreateForm() {
   const navigate = useNavigate();
   const { formId: routeFormId } = useParams();
   const isEditMode = Boolean(routeFormId);
 
+  // Templates only make sense when creating fresh — an edit always jumps
+  // straight to the builder with the existing form's own fields.
+  const [templateChosen, setTemplateChosen] = useState(isEditMode);
   const [formId, setFormId] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -264,6 +289,26 @@ function CreateForm() {
   const [currentVersion, setCurrentVersion] = useState(null);
   const [loadingExisting, setLoadingExisting] = useState(isEditMode);
   const [loadError, setLoadError] = useState("");
+
+  const applyTemplate = (template) => {
+    setFormId(template.suggestedFormId);
+    setTitle(template.title);
+    setDescription(template.description);
+    setFields(template.fields.map(fieldToBuilderState));
+    setTemplateChosen(true);
+  };
+
+  // A no-op unless a template was already applied and then abandoned via
+  // "Back to templates" — without this, "start from scratch" after that
+  // would silently keep the previous template's fields instead of actually
+  // being blank.
+  const startFromScratch = () => {
+    setFormId("");
+    setTitle("");
+    setDescription("");
+    setFields([blankField()]);
+    setTemplateChosen(true);
+  };
 
   useEffect(() => {
     if (!isEditMode) return;
@@ -381,11 +426,15 @@ function CreateForm() {
           {isEditMode ? "Edit Form" : "Create Form"}
           {isEditMode && currentVersion && <span className="cf-version-badge">v{currentVersion}</span>}
         </span>
-        <h1 className="fb-title">{isEditMode ? "Edit this form" : "Design a new form"}</h1>
+        <h1 className="fb-title">
+          {isEditMode ? "Edit this form" : templateChosen ? "Design a new form" : "Start from a template"}
+        </h1>
         <p className="fb-subtitle">
           {isEditMode
             ? "Saving creates a new version — submissions already on file keep the version they were filled under."
-            : "Add fields, set their type, and optionally make one depend on another."}
+            : templateChosen
+            ? "Add fields, set their type, and optionally make one depend on another."
+            : "Pick a common claim type to start with its fields already filled in, or build one from scratch."}
         </p>
 
         {error && <div className="fb-error">{error}</div>}
@@ -393,8 +442,15 @@ function CreateForm() {
 
         {isEditMode && loadingExisting ? (
           <div className="cf-loading">Loading form…</div>
+        ) : !templateChosen ? (
+          <TemplateGallery onChoose={applyTemplate} onStartFromScratch={startFromScratch} />
         ) : (
         <form onSubmit={handleSubmit}>
+          {!isEditMode && (
+            <button type="button" className="cf-back-to-gallery" onClick={() => setTemplateChosen(false)}>
+              ← Back to templates
+            </button>
+          )}
           <div className="cf-form-meta">
             <div className="df-field">
               <label htmlFor="formId">Form ID</label>

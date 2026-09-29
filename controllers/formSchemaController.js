@@ -5,6 +5,7 @@ const FormDraft = require("../models/FormDraft");
 const exampleFormSchema = require("../lib/exampleFormSchema");
 const { asyncHandler } = require("../middleware/errorHandler");
 const { sendSubmissionConfirmationEmail } = require("../services/emailService");
+const { buildReceiptPdfBuffer } = require("../services/receiptPdfService");
 const submissionEvents = require("../events/submissionEvents");
 
 async function getSchema(req, res) {
@@ -136,7 +137,15 @@ async function submitResponse(req, res) {
   const emailField = schema.fields.find((f) => f.type === "email");
   const recipientEmail = emailField && values[emailField.id];
   if (recipientEmail) {
-    sendSubmissionConfirmationEmail(recipientEmail, schema.title, response._id).catch((err) => {
+    // A PDF build failure shouldn't cost the submitter their confirmation
+    // email entirely — fall back to sending it without the attachment.
+    let pdfBuffer;
+    try {
+      pdfBuffer = buildReceiptPdfBuffer({ schema, values, responseId: response._id, submittedAt: response.createdAt });
+    } catch (err) {
+      console.error("Receipt PDF build failed:", err.message);
+    }
+    sendSubmissionConfirmationEmail(recipientEmail, schema.title, response._id, pdfBuffer).catch((err) => {
       console.error("Submission confirmation email failed:", err.message);
     });
   }

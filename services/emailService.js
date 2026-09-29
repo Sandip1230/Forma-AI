@@ -47,14 +47,19 @@ async function sendOtpEmail(toEmail, code, purpose) {
   });
 }
 
-async function sendSubmissionConfirmationEmail(toEmail, formTitle, submissionId) {
+// `pdfBuffer` is optional — a missing/failed PDF build shouldn't block the
+// confirmation email itself, so the caller decides whether to pass one.
+async function sendSubmissionConfirmationEmail(toEmail, formTitle, submissionId, pdfBuffer) {
   const { transporter, user } = getTransporter();
   await transporter.sendMail({
     from: `"Forma AI" <${user}>`,
     to: toEmail,
     subject: `We received your "${formTitle}" submission`,
-    text: `Thanks — we received your "${formTitle}" submission. Reference: ${submissionId}.`,
-    html: `<p>Thanks — we received your <strong>${formTitle}</strong> submission.</p><p style="color:#626a85;font-size:13px;">Reference: ${submissionId}</p>`,
+    text: `Thanks — we received your "${formTitle}" submission. Reference: ${submissionId}.${pdfBuffer ? " A PDF receipt is attached." : ""}`,
+    html: `<p>Thanks — we received your <strong>${formTitle}</strong> submission.</p><p style="color:#626a85;font-size:13px;">Reference: ${submissionId}</p>${pdfBuffer ? '<p style="color:#626a85;font-size:13px;">A PDF receipt is attached.</p>' : ""}`,
+    attachments: pdfBuffer
+      ? [{ filename: `${formTitle.replace(/[^a-z0-9]+/gi, "-")}-receipt.pdf`, content: pdfBuffer, contentType: "application/pdf" }]
+      : undefined,
   });
 }
 

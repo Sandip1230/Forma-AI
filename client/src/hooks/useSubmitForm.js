@@ -22,9 +22,9 @@ export function useSubmitForm(formId, draftId) {
           ? Object.fromEntries(aiFilledIds.map((id) => [id, prefillValues?.[id]]))
           : undefined;
 
-      await submitFormResponse(formId, { ...values, __draftId: draftId, __aiOriginalValues });
+      const response = await submitFormResponse(formId, { ...values, __draftId: draftId, __aiOriginalValues });
       deleteDraft(formId, draftId).catch(() => {});
-      setSubmitted(true);
+      setSubmitted(true, values, response);
     } catch (err) {
       setSubmitError(err.message || "Could not submit the form. Please try again.");
     } finally {

@@ -8,6 +8,7 @@ import { getDraftId } from "../utils/draftId";
 import DynamicForm from "../components/DynamicForm/DynamicForm";
 import MagicInput from "../components/MagicInput/MagicInput";
 import Logo from "../components/Logo";
+import { generateReceiptPdf } from "../utils/generateReceiptPdf";
 import "./FormBuilder.css";
 
 function FormBuilder() {
@@ -16,7 +17,10 @@ function FormBuilder() {
   const { schema, loading, error } = useFormSchema(formId);
   const draftId = getDraftId(formId);
 
-  const { prefillValues, aiFilledIds, lowConfidenceIds, aiWasUsed, setExtracted, resetSession } = useFormSessionStore();
+  const {
+    prefillValues, aiFilledIds, lowConfidenceIds, aiWasUsed, setExtracted, resetSession,
+    submittedValues, submittedResponse,
+  } = useFormSessionStore();
   const { draftValues, draftFound, draftLoaded, savingDraft, dismissDraftBanner, handleValuesChange } =
     useDraftSync(formId, draftId, schema);
   const { submit, submitting, submitted, submitError } = useSubmitForm(formId, draftId);
@@ -106,6 +110,23 @@ function FormBuilder() {
             </div>
             <p className="fb-success__title">Submitted</p>
             <p className="fb-success__sub">Thanks — we've received your response.</p>
+            {submittedResponse && (
+              <button
+                type="button"
+                className="fb-success__pdf"
+                onClick={() =>
+                  generateReceiptPdf({
+                    schema,
+                    values: submittedValues || {},
+                    responseId: submittedResponse.id,
+                    submittedAt: submittedResponse.submittedAt,
+                  })
+                }
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 19h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                Download PDF receipt
+              </button>
+            )}
           </div>
         )}
       </div>

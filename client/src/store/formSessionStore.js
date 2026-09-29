@@ -17,6 +17,11 @@ const initialState = {
   submitting: false,
   submitted: false,
   submitError: "",
+  // What was actually sent and what the server handed back — held onto so
+  // the success screen can generate a PDF receipt without re-fetching or
+  // re-deriving anything.
+  submittedValues: null,
+  submittedResponse: null,
 };
 
 // Owns the orchestration state around filling out one form — AI extraction
@@ -42,7 +47,8 @@ export const useFormSessionStore = create((set) => ({
   setSavingDraft: (savingDraft) => set({ savingDraft }),
 
   setSubmitting: (submitting) => set({ submitting }),
-  setSubmitted: (submitted) => set({ submitted }),
+  setSubmitted: (submitted, values, response) =>
+    set({ submitted, submittedValues: values ?? null, submittedResponse: response ?? null }),
   setSubmitError: (submitError) => set({ submitError }),
 
   resetSession: () => set(initialState),

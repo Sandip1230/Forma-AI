@@ -20,7 +20,7 @@ This application utilizes a highly scalable architecture for managing unstructur
 
 
 *   `Frontend` (React & React Hook Form): A Dynamic Form Renderer capable of generating complex, nested UIs dynamically entirely from a backend JSON schema.
-
+*   
 *   `State Management (Redux / Zustand)`: Manages the complex, deeply nested state of the form as the user interacts with it.
 
 *   `Backend & AI Pipeline (Node.js & LangChain)`: An LLM Extraction API uses an LLM (like GPT-4o or a local model) to parse unstructured user text and map it to the strict JSON schema required by the form.
@@ -42,18 +42,21 @@ Wherever you cloned the repo — it should contain `server.js`, `models/`, `rout
 ### 2. Backend setup (first time only, or after adding new dependencies)
 
 *   npm install
+*   
 *   Create a `.env` file (see `.env.example`) with real values — MongoDB connection string, `JWT_SECRET`, `GOOGLE_API_KEY`, Gmail SMTP credentials for OTP emails, etc.
 *   If you're pointing at a local MongoDB instead of Atlas, make sure it's running (Compass, the Windows service, or `mongod` — whichever you set up).
 
 ### 3. Seed the demo form (only needed once, or after you change the schema)
 
 *   npm run seed:demo
+*   
 *   Should print `Seeded form: claim-demo`.
 
 
 ### 4. Start the backend
 
 *   npm run dev
+*   
 *   Watch for `MongoDB connected` and `Forma AI server listening on port 5000`.
 
 
@@ -62,6 +65,7 @@ Wherever you cloned the repo — it should contain `server.js`, `models/`, `rout
 *   cd client
 *   npm install
 *   npm run dev
+*   
 *   It'll print a local URL — normally http://localhost:5173.
 
 ### 6. Open it

@@ -21,6 +21,7 @@ Based on a complex JSON schema stored in MongoDB, the React UI dynamically revea
 This application utilizes a highly scalable architecture for managing unstructured data and complex business rules:
 
 
+
 *   `Frontend` (React & React Hook Form): A Dynamic Form Renderer capable of generating complex, nested UIs dynamically entirely from a backend JSON schema.
 *   
 *   `State Management (Redux / Zustand)`: Manages the complex, deeply nested state of the form as the user interacts with it.
